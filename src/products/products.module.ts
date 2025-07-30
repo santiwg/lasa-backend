@@ -6,9 +6,11 @@ import { IngredientService } from './ingredient/ingredient.service';
 import { StockMovementService } from './stock-movement/stock-movement.service';
 import { ProductionInstanceController } from './production-instance/production-instance.controller';
 import { ProductionInstanceService } from './production-instance/production-instance.service';
+import { UnitService } from './unit/unit/unit.service';
+import { UnitController } from './unit/unit.controller';
 
 @Module({
-  controllers: [ProductController, IngredientController, ProductionInstanceController],
-  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService]
+  controllers: [ProductController, IngredientController, ProductionInstanceController, UnitController],
+  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService, UnitService]
 })
 export class ProductsModule {}
