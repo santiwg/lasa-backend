@@ -25,6 +25,7 @@ export abstract class Check extends BaseEntity { //not finished
     @Column({ type: 'date' })
     collectionDate: Date;
 
+    /*
     @ManyToOne(() => State, state => state.checks)
     state: State;
 
@@ -32,5 +33,5 @@ export abstract class Check extends BaseEntity { //not finished
     payments: Payment[];
 
     @OneToMany(() => PaymentCollection, paymentCollection => paymentCollection.check)
-    paymentCollections: PaymentCollection[];
+    paymentCollections: PaymentCollection[];*/
 }

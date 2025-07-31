@@ -1,9 +1,9 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Sale } from "../../sales/sale/sale.entity";
 import { Purchase } from "../../purchases/purchase/purchase.entity";
-import { Check } from "../check/check.entity";
-import { PaymentCollection } from "../../sales/payment-collection/payment-collection.entity";
-import { Supplier } from "../../purchases/supplier/supplier.entity";
+// import { Check } from "../check/check.entity";
+// import { PaymentCollection } from "../../sales/payment-collection/payment-collection.entity";
+// import { Supplier } from "../../purchases/supplier/supplier.entity";
 
 @Entity('states')
 export class State extends BaseEntity {
@@ -22,8 +22,6 @@ export class State extends BaseEntity {
     @OneToMany(() => Purchase, purchase => purchase.state)
     purchases: Purchase[];
 
-    @OneToMany(() => Check, check => check.state)
-    checks: Check[];
-
-
+    // @OneToMany(() => Check, check => check.state)
+    // checks: Check[];
 }

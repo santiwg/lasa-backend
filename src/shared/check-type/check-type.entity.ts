@@ -1,7 +1,8 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Check } from "../check/check.entity";
 
-@Entity('check-types')
+//@Entity('check-types')
+//not saving it in the db for now
 export class CheckType extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;

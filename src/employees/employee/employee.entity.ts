@@ -10,7 +10,7 @@ export class Employee extends BaseEntity {
     name: string;
 
     @Column()
-    email: string;
+    email: string; //I don´t add unique because I think it will be unnecessary and may affect performance a little
     
     @Column()
     lastName: string;
@@ -24,9 +24,9 @@ export class Employee extends BaseEntity {
     @Column()
     phoneNumber: string;
     
-    @Column({ nullable: true })
+    @Column({ nullable: true,unique:true })
     cuit: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true,unique:true })
     cuil: string;
 }

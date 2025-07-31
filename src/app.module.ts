@@ -9,10 +9,18 @@ import { BakeryModule } from './bakery/bakery.module';
 import { EmployeesModule } from './employees/employees.module';
 import { ProductsModule } from './products/products.module';
 import { PurchasesModule } from './purchases/purchases.module';
-import { SalesModule } from './sales/sales.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 
 @Module({
-  imports: [SalesModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule, SharedModule, CifModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: "postgresql://admin:77PdonrDyrvXgd6tSqVd56oC9GEy1iFj@dpg-d25b1o63jp1c73d5dcs0-a.virginia-postgres.render.com/lasa?sslmode=require",
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    SharedModule, SalesModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule, CifModule],
   controllers: [AppController],
   providers: [AppService],
 })

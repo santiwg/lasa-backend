@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Bakery } from "../bakery/bakery.entity";
 import { Sale } from "../../sales/sale/sale.entity";
 
-@Entity('branchs')
+@Entity('branches')
 export class Branch extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;

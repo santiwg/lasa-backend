@@ -10,7 +10,7 @@ export class PaymentMethod extends BaseEntity {
     @Column({unique:true})
     name: string;
 
-    @Column()
+    @Column({ nullable: true ,type: 'text'})
     description: string;
 
     @OneToMany(() => Payment, payment => payment.paymentMethod)
