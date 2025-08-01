@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { StockMovement } from "../stock-movement/stock-movement.entity";
 import { RecipeItem } from "../product/recipe-item.entity";
 import { PurchaseDetail } from "../../purchases/purchase/purchase-detail.entity";
-import { Unit } from "../unit/unit.entity";
+import { Unit } from "../../shared/unit/unit.entity";
 
 @Entity('ingredients')
 export class Ingredient extends BaseEntity {

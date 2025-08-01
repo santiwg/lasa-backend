@@ -18,7 +18,7 @@ export class Purchase extends BaseEntity {
     @ManyToOne(() => Supplier, supplier => supplier.purchases)
     supplier: Supplier;
 
-    @OneToMany(() => PurchaseDetail, purchaseDetail => purchaseDetail.purchase)
+    @OneToMany(() => PurchaseDetail, purchaseDetail => purchaseDetail.purchase,{ cascade: true, eager: true })
     details: PurchaseDetail[];
 
     @OneToMany(() => PaymentDetail, paymentDetail => paymentDetail.purchase)

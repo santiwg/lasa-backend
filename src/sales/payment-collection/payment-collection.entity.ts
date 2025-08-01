@@ -32,6 +32,6 @@ export class PaymentCollection extends BaseEntity {
 
 
 
-    @OneToMany(() => PaymentCollectionDetail, paymentCollectionDetail => paymentCollectionDetail.paymentCollection)
+    @OneToMany(() => PaymentCollectionDetail, paymentCollectionDetail => paymentCollectionDetail.paymentCollection,{ cascade: true, eager: true })
     details: PaymentCollectionDetail[];
 }

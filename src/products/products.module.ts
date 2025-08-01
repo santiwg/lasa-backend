@@ -7,8 +7,8 @@ import { IngredientService } from './ingredient/ingredient.service';
 import { StockMovementService } from './stock-movement/stock-movement.service';
 import { ProductionInstanceController } from './production-instance/production-instance.controller';
 import { ProductionInstanceService } from './production-instance/production-instance.service';
-import { UnitService } from './unit/unit.service';
-import { UnitController } from './unit/unit.controller';
+import { UnitService } from '../shared/unit/unit.service';
+import { UnitController } from '../shared/unit/unit.controller';
 import { products_module_entities } from '../entities';
 
 @Module({

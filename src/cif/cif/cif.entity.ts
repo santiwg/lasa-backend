@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { CostType } from "../cost-type/cost-type.entity";
+import { Unit } from "../../shared/unit/unit.entity";
 
 @Entity('cifs')
 export class Cif extends BaseEntity {
@@ -15,8 +16,8 @@ export class Cif extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     quantity: number;
 
-    @Column()
-    unit: string;
+    @ManyToOne(() => Unit)
+    unit: Unit;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     unitPrice: number;

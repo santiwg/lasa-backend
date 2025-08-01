@@ -23,6 +23,6 @@ export class Payment extends BaseEntity {
     // @JoinColumn()
     // check: Check;
 
-    @OneToMany(() => PaymentDetail, paymentDetail => paymentDetail.payment)
+    @OneToMany(() => PaymentDetail, paymentDetail => paymentDetail.payment, { cascade: true, eager: true })
     details: PaymentDetail[];
 }

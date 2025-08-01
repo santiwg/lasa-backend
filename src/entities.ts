@@ -4,7 +4,7 @@ import { StockMovement } from './products/stock-movement/stock-movement.entity';
 import { ProductionInstance } from './products/production-instance/production-instance.entity';
 import { ProductionInstanceDetail } from './products/production-instance/production-instance-detail.entity';
 import { RecipeItem } from './products/product/recipe-item.entity';
-import { Unit } from './products/unit/unit.entity';
+import { Unit } from './shared/unit/unit.entity';
 
 import { Employee } from './employees/employee/employee.entity';
 import { EmployeeRole } from './employees/employee-role/employee-role.entity';

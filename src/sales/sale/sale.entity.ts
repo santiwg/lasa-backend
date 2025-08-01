@@ -22,7 +22,7 @@ export class Sale extends BaseEntity {
     @ManyToOne(() => Customer, customer => customer.sales)
     customer: Customer;
 
-    @OneToMany(() => SaleDetail, saleDetail => saleDetail.sale)
+    @OneToMany(() => SaleDetail, saleDetail => saleDetail.sale, { cascade: true, eager: true })
     details: SaleDetail[];
 
     @OneToMany(() => PaymentCollectionDetail, paymentCollectionDetail => paymentCollectionDetail.sale)

@@ -9,6 +9,6 @@ export class ProductionInstance extends BaseEntity {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     dateTime: Date;
 
-    @OneToMany(() => ProductionInstanceDetail, productionInstanceDetail => productionInstanceDetail.productionInstance)
+    @OneToMany(() => ProductionInstanceDetail, productionInstanceDetail => productionInstanceDetail.productionInstance, { cascade: true, eager: true })
     details: ProductionInstanceDetail[];
 }

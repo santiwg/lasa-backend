@@ -3,7 +3,7 @@ import { StockMovement } from "../stock-movement/stock-movement.entity";
 import { RecipeItem } from "./recipe-item.entity";
 import { SaleDetail } from "../../sales/sale/sale-detail.entity";
 import { ProductionInstanceDetail } from "../production-instance/production-instance-detail.entity";
-import { Unit } from "../unit/unit.entity";
+import { Unit } from "../../shared/unit/unit.entity";
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -34,7 +34,7 @@ export class Product extends BaseEntity {
     @OneToMany(() => StockMovement, stockMovement => stockMovement.product)
     stockMovements: StockMovement[];
 
-    @OneToMany(() => RecipeItem, recipeItem => recipeItem.product)
+    @OneToMany(() => RecipeItem, recipeItem => recipeItem.product, { cascade: true, eager: true })
     recipeItems: RecipeItem[];
 
     @OneToMany(() => SaleDetail, saleDetail => saleDetail.product)
