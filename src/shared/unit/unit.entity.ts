@@ -9,7 +9,7 @@ export class Unit extends BaseEntity {
     name: string;
 
     @Column({ nullable: true ,type:'text'})
-    description: string;
+    description: string | null;
 
     @Column()
     scope: string;

@@ -10,6 +10,6 @@ export class EmployeeRole extends BaseEntity {
     name: string;
 
     @Column({ nullable: true ,type: 'text'})
-    description: string;
+    description: string | null;
 
 }

@@ -18,15 +18,18 @@ export class Employee extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     hourlyWage: number;
 
-    @ManyToOne(() => EmployeeRole)
+    @Column()
+    isActive: boolean;
+
+    @ManyToOne(() => EmployeeRole,{eager: true})
     role:EmployeeRole
 
     @Column()
     phoneNumber: string;
     
     @Column({ nullable: true,unique:true })
-    cuit: string;
+    cuit: string | null;
 
     @Column({ nullable: true,unique:true })
-    cuil: string;
+    cuil: string | null;
 }

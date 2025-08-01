@@ -17,10 +17,10 @@ export class Customer extends BaseEntity {
     email: string;
 
     @Column({unique:true,nullable:true})
-    cuit: string;
+    cuit: string | null;
 
     @Column({unique:true,nullable:true})
-    cuil: string;
+    cuil: string | null;
 
     @OneToMany(() => Sale, sale => sale.customer)
     sales: Sale[];

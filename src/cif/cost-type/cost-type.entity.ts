@@ -10,7 +10,7 @@ export class CostType extends BaseEntity {
     name: string;
 
     @Column({ nullable: true ,type: 'text'})
-    description: string;
+    description: string | null;
 
     @OneToMany(() => Cif, cif => cif.costType)
     cifs: Cif[];

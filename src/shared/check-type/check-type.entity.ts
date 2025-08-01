@@ -11,7 +11,7 @@ export class CheckType extends BaseEntity {
     name: string;
 
     @Column({ nullable: true ,type: 'text'})
-    description: string;
+    description: string | null;
 
     @OneToMany(() => Check, check => check.checkType)
     checks: Check[];

@@ -41,8 +41,7 @@ export const products_module_entities = [
   StockMovement,
   ProductionInstance,
   ProductionInstanceDetail,
-  RecipeItem,
-  Unit
+  RecipeItem
 ];
 
 // Employees module entities
@@ -89,7 +88,8 @@ export const purchases_module_entities = [
 // Shared module entities
 export const shared_module_entities = [
   State,
-  PaymentMethod
+  PaymentMethod,
   // Check,
-  // CheckType
+  // CheckType,
+  Unit
 ]; 
