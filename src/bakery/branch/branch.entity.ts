@@ -16,4 +16,8 @@ export class Branch extends BaseEntity {
 
     @OneToMany(() => Sale, sale => sale.branch)
     sales: Sale[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { CostType } from "../cost-type/cost-type.entity";
 import { Unit } from "../../shared/unit/unit.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('cifs')
 export class Cif extends BaseEntity {
@@ -21,4 +22,8 @@ export class Cif extends BaseEntity {
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     unitPrice: number;
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

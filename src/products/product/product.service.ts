@@ -53,6 +53,9 @@ export class ProductService {
 
     private async convertToProductWithCosts(product: Product): Promise<ProductWithCosts> {
         const costData = await this.getCostCalculationData(product);
+
+        //calculate the labor cost the same way as in the costCalculation method, and divide it by the units per recipe
+        //to get the unitary labor cost
         const unitaryLaborCost = (product.laborHoursPerRecipe * costData.averageHourlyWage) / product.unitsPerRecipe;
 
         return {
@@ -111,6 +114,40 @@ export class ProductService {
         });
         
         return await this.repository.save(newProduct);
+    }
+    async update(id: number, product: NewProductDto): Promise<Product> {
+        
+        /////CHEQUEAR
+        /////CHEQUEAR
+        /////CHEQUEAR
+        
+        // 1. Cargar producto existente (eager:true ya carga las relaciones)
+        const existingProduct = await this.repository.findOne({
+            where: { id }
+        });
+
+        if (!existingProduct) {
+            throw new BadRequestException(`Product with ID ${id} not found`);
+        }
+
+        // 2. Procesar datos de actualización
+        const {unitId, items, ...productData} = product;
+        const unit = await this.unitService.findById(unitId);
+        const recipeItems = await this.createRecipeItems(items);
+
+        // 3. Actualizar usando Object.assign
+        Object.assign(existingProduct, {
+            ...productData,
+            unit,
+            recipeItems
+        });
+
+        // 4. Guardar (maneja relaciones automáticamente)
+        return await this.repository.save(existingProduct);
+    }
+    async updateWithCosts(id: number, product: NewProductDto): Promise<ProductWithCosts> {
+        const updatedProduct = await this.update(id, product);
+        return await this.convertToProductWithCosts(updatedProduct);
     }
 
     async createWithCosts(product: NewProductDto): Promise<ProductWithCosts> {
