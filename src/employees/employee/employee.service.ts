@@ -55,4 +55,19 @@ export class EmployeeService {
         return this.getAverageHourlyWageByRole(role.id);
     }
 
+    async update(id: number, updateEmployee: NewEmployeeDto): Promise<Employee> {
+        const employee = await this.findById(id);
+
+        // Validar que el rol existe
+        const role = await this.employeeRoleService.findById(updateEmployee.roleID);
+
+        // Separar roleID del resto de datos
+        const { roleID, ...employeeData } = updateEmployee;
+
+        // Actualizar empleado con datos válidos
+        Object.assign(employee, employeeData, { role });
+
+        return this.repository.save(employee);
+    }
+
 }

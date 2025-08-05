@@ -36,6 +36,30 @@ export class IngredientService {
         });
         return this.repository.save(newIngredient);
     }
+
+    async update(id: number, ingredient: NewIngredientDto): Promise<Ingredient> {
+        // 1. Cargar ingrediente existente (eager:true ya carga las relaciones)
+        const existingIngredient = await this.repository.findOne({
+            where: { id }
+        });
+
+        if (!existingIngredient) {
+            throw new BadRequestException(`Ingredient with ID ${id} not found`);
+        }
+
+        // 2. Procesar datos de actualización
+        const { unitId, ...ingredientData } = ingredient;
+        const unit = await this.unitService.findById(unitId);
+
+        // 3. Actualizar usando Object.assign
+        Object.assign(existingIngredient, {
+            ...ingredientData,
+            unit
+        });
+
+        // 4. Guardar
+        return await this.repository.save(existingIngredient);
+    }
     async delete(id: number): Promise<{ message: string; }> {
         const ingredient = await this.findById(id);
         await this.repository.softRemove(ingredient);

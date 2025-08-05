@@ -5,6 +5,7 @@ import { Cif } from './cif.entity';
 import { NewCifDto } from './dtos/newCif.dto';
 import { CostTypeService } from '../cost-type/cost-type.service';
 import { UnitService } from 'src/shared/unit/unit.service';
+import { Product } from 'src/products/product/product.entity';
 
 @Injectable()
 export class CifService {
@@ -67,5 +68,25 @@ export class CifService {
             }
         });
         return cifEntries.reduce((total, cif) => total + cif.unitPrice * cif.quantity, 0);
+    }
+    async getUnitaryCif(product: Product, allProducts: Product[]): Promise<number> {
+        const weightedTotal = this.getWeightedTotal(allProducts);
+        if (weightedTotal === 0) return 0; // Evitar división por cero
+
+        //kg × factor de cada producto es la ponderacion
+        const productWeight = product.expectedKilosPerMonth * product.complexityFactor;
+        const percentage = productWeight / weightedTotal; // Porcentaje del producto respecto al total ponderado
+        
+        //usamos el total de CIF del mes anterior, pues en el mes actual aún no necesariamente se registraron todos los cif y puede ser engañoso
+        const totalCif = await this.getLastMonthTotal();
+        const totalCifForProduct = totalCif * percentage; // CIF asignado a este producto
+        // Coste CIF unitario = CIF asignado al producto / producción esperada del producto
+        const unitaryCif = totalCifForProduct / product.expectedKilosPerMonth;
+        return unitaryCif;
+    }
+    getWeightedTotal(products: Product[]): number {
+        //∑ kg × factor de cada producto
+        //suma de la cantidad ponderada de cada producto
+        return products.reduce((total, product) => total + product.expectedKilosPerMonth * product.complexityFactor, 0);
     }
 }

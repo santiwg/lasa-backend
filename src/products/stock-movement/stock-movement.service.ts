@@ -34,7 +34,7 @@ export class StockMovementService {
 
         // Destructure to remove ID attributes
         const { productId, ingredientId, ...stockMovementData } = newStockMovement;
-        
+
         const stockMovement = this.repository.create({
             ...stockMovementData,
             product,
@@ -43,9 +43,13 @@ export class StockMovementService {
 
         const savedStockMovement = await this.repository.save(stockMovement);
 
-        // TODO: Add logic to update the stock attribute for the product or ingredient
-        // This should increment/decrement the stock based on the movement type and quantity
-
+        //Update the stock attribute for the product or ingredient
+        if (product) {
+            await this.productService.updateStock(product.id, newStockMovement.quantity);
+        }
+        if (ingredient) {
+            await this.ingredientService.updateStock(ingredient.id, newStockMovement.quantity);
+        }
         return savedStockMovement;
     }
 
@@ -55,7 +59,7 @@ export class StockMovementService {
 
         const hasProductId = dto.productId !== undefined && dto.productId !== null;
         const hasIngredientId = dto.ingredientId !== undefined && dto.ingredientId !== null;
-        
+
         if (hasProductId === hasIngredientId) {
             throw new BadRequestException(
                 'Exactly one of productId or ingredientId must be provided'

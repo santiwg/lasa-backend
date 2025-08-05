@@ -116,12 +116,7 @@ export class ProductService {
         return await this.repository.save(newProduct);
     }
     async update(id: number, product: NewProductDto): Promise<Product> {
-        
-        /////CHEQUEAR
-        /////CHEQUEAR
-        /////CHEQUEAR
-        
-        // 1. Cargar producto existente (eager:true ya carga las relaciones)
+        // 1. Cargar producto existente
         const existingProduct = await this.repository.findOne({
             where: { id }
         });
@@ -135,14 +130,12 @@ export class ProductService {
         const unit = await this.unitService.findById(unitId);
         const recipeItems = await this.createRecipeItems(items);
 
-        // 3. Actualizar usando Object.assign
+        // 3. Actualizar usando Object.assign y guardar
         Object.assign(existingProduct, {
             ...productData,
             unit,
             recipeItems
         });
-
-        // 4. Guardar (maneja relaciones automáticamente)
         return await this.repository.save(existingProduct);
     }
     async updateWithCosts(id: number, product: NewProductDto): Promise<ProductWithCosts> {
