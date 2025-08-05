@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { Bakery } from "../bakery/bakery.entity";
 import { Sale } from "../../sales/sale/sale.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('branches')
 export class Branch extends BaseEntity {

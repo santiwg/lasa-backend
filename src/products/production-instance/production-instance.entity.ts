@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
 import { ProductionInstanceDetail } from "./production-instance-detail.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('production-instances')
 export class ProductionInstance extends BaseEntity {
@@ -11,4 +12,8 @@ export class ProductionInstance extends BaseEntity {
 
     @OneToMany(() => ProductionInstanceDetail, productionInstanceDetail => productionInstanceDetail.productionInstance, { cascade: true, eager: true })
     details: ProductionInstanceDetail[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

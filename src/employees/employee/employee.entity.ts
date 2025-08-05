@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { EmployeeRole } from "../employee-role/employee-role.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('employees')
 export class Employee extends BaseEntity {
@@ -18,7 +19,7 @@ export class Employee extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     hourlyWage: number;
 
-    @Column()
+    @Column({ default: true })
     isActive: boolean;
 
     @ManyToOne(() => EmployeeRole,{eager: true})
@@ -32,4 +33,8 @@ export class Employee extends BaseEntity {
 
     @Column({ nullable: true,unique:true })
     cuil: string | null;
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

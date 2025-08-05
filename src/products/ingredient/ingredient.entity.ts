@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
+import { Exclude } from "class-transformer";
 import { StockMovement } from "../stock-movement/stock-movement.entity";
 import { RecipeItem } from "../product/recipe-item.entity";
 import { PurchaseDetail } from "../../purchases/purchase/purchase-detail.entity";
@@ -18,7 +19,7 @@ export class Ingredient extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     currentStock: number;
 
-    @ManyToOne(() => Unit)
+    @ManyToOne(() => Unit, { eager: true })
     unit: Unit;
 
     @OneToMany(() => StockMovement, stockMovement => stockMovement.ingredient)
@@ -29,4 +30,8 @@ export class Ingredient extends BaseEntity {
 
     @OneToMany(() => PurchaseDetail, purchaseDetail => purchaseDetail.ingredient)
     purchaseDetails: PurchaseDetail[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

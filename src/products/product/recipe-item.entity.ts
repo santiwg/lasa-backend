@@ -10,9 +10,14 @@ export class RecipeItem extends BaseEntity {
     @ManyToOne(() => Product, product => product.recipeItems)
     product: Product;
 
-    @ManyToOne(() => Ingredient, ingredient => ingredient.recipeItems)
+    @ManyToOne(() => Ingredient, ingredient => ingredient.recipeItems, { eager: true })
     ingredient: Ingredient;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     quantity: number;
+
+    
+    getSubtotal(): number {
+        return this.ingredient.unitPrice * this.quantity;
+    }
 }

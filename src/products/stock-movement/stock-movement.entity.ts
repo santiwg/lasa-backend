@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { Product } from "../product/product.entity";
 import { Ingredient } from "../ingredient/ingredient.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('stock-movements')
 export class StockMovement extends BaseEntity {
@@ -13,11 +14,18 @@ export class StockMovement extends BaseEntity {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     dateTime: Date;
 
-    @ManyToOne(() => Product, product => product.stockMovements)
+    @ManyToOne(() => Product, product => product.stockMovements, { nullable: true })
     @JoinColumn()
-    product: Product;
+    product: Product | null;
 
-    @ManyToOne(() => Ingredient, ingredient => ingredient.stockMovements)
+    @Column({ nullable: true ,type:'text'})
+    description: string | null;
+
+    @ManyToOne(() => Ingredient, ingredient => ingredient.stockMovements, { nullable: true })
     @JoinColumn()
-    ingredient: Ingredient;
+    ingredient: Ingredient | null;
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

@@ -7,7 +7,7 @@ export class Cif extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => CostType, costType => costType.cifs)
+    @ManyToOne(() => CostType, costType => costType.cifs, { eager: true })
     costType: CostType;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -16,7 +16,7 @@ export class Cif extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     quantity: number;
 
-    @ManyToOne(() => Unit)
+    @ManyToOne(() => Unit, { eager: true })
     unit: Unit;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })

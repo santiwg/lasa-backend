@@ -1,6 +1,7 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
 import { Sale } from "../sale/sale.entity";
 import { PaymentCollection } from "../payment-collection/payment-collection.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('customers')
 export class Customer extends BaseEntity {
@@ -27,4 +28,8 @@ export class Customer extends BaseEntity {
 
     @OneToMany(() => PaymentCollection, paymentCollection => paymentCollection.customer)
     paymentCollections: PaymentCollection[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

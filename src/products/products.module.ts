@@ -4,6 +4,7 @@ import { ProductController } from './product/product.controller';
 import { ProductService } from './product/product.service';
 import { IngredientController } from './ingredient/ingredient.controller';
 import { IngredientService } from './ingredient/ingredient.service';
+import { StockMovementController } from './stock-movement/stock-movement.controller';
 import { StockMovementService } from './stock-movement/stock-movement.service';
 import { ProductionInstanceController } from './production-instance/production-instance.controller';
 import { ProductionInstanceService } from './production-instance/production-instance.service';
@@ -15,7 +16,7 @@ import { products_module_entities } from '../entities';
   imports: [
     TypeOrmModule.forFeature(products_module_entities)
   ],
-  controllers: [ProductController, IngredientController, ProductionInstanceController, UnitController],
+  controllers: [ProductController, IngredientController, StockMovementController, ProductionInstanceController, UnitController],
   providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService, UnitService]
 })
 export class ProductsModule {}

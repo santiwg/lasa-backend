@@ -17,6 +17,15 @@ export class EmployeeRoleService {
         }
         return role;
     }
+    
+    async findByName(name: string): Promise<EmployeeRole> {
+        const role = await this.repository.findOne({ where: { name } });
+        if (!role) {
+            throw new NotFoundException(`Employee role with name '${name}' not found`);
+        }
+        return role;
+    }
+    
     async create(newRole: NewEmployeeRoleDto): Promise<EmployeeRole> {
         const role = this.repository.create(newRole);
         return this.repository.save(role);

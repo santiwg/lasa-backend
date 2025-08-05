@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
 import { Branch } from "../branch/branch.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('bakerys')
 export class Bakery extends BaseEntity {
@@ -11,4 +12,8 @@ export class Bakery extends BaseEntity {
 
     @OneToMany(() => Branch, branch => branch.bakery)
     branches: Branch[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

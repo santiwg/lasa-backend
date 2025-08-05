@@ -32,7 +32,7 @@ export class EmployeeService {
             ...employeeData,
             role
         });
-        
+
         return this.repository.save(employee);
     }
     async getAverageHourlyWageByRole(roleId: number): Promise<number> {
@@ -42,6 +42,17 @@ export class EmployeeService {
         }
         const totalWage = employees.reduce((sum, employee) => sum + employee.hourlyWage, 0);
         return totalWage / employees.length;
+    }
+
+    async getAverageHourlyWageByRoleName(roleName: string): Promise<number> {
+        // Buscar el rol por nombre
+        const role = await this.employeeRoleService.findByName(roleName);
+        if (!role) {
+            throw new NotFoundException(`Role '${roleName}' not found`);
+        }
+        
+        // Usar el método existente con el ID del rol encontrado
+        return this.getAverageHourlyWageByRole(role.id);
     }
 
 }

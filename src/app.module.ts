@@ -10,15 +10,23 @@ import { EmployeesModule } from './employees/employees.module';
 import { ProductsModule } from './products/products.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: "postgresql://admin:77PdonrDyrvXgd6tSqVd56oC9GEy1iFj@dpg-d25b1o63jp1c73d5dcs0-a.virginia-postgres.render.com/lasa?sslmode=require",
-      autoLoadEntities: true,
-      synchronize: true,
+    ConfigModule.forRoot({
+      envFilePath: '.env.db',
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: configService.get('DATABASE_TYPE') as 'postgres',
+        url: configService.get('DATABASE_URL'),
+        autoLoadEntities: configService.get('DATABASE_AUTO_LOAD_ENTITIES') === 'true',
+        synchronize: configService.get('DATABASE_SYNCHRONIZE') === 'true',
+      }),
+      inject: [ConfigService],
     }),
     SharedModule, SalesModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule, CifModule],
   controllers: [AppController],

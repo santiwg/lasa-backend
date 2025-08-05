@@ -1,10 +1,11 @@
-import { IsDecimal, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsDecimal, IsEmail, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class NewEmployeeDto {
     @IsString()
     name: string;
 
     @IsString()
+    @IsEmail()
     email: string;
 
     @IsString()

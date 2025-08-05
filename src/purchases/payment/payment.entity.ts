@@ -1,8 +1,9 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { Supplier } from "../supplier/supplier.entity";
 import { PaymentMethod } from "../../shared/payment-method/payment-method.entity";
 // import { Check } from "../../shared/check/check.entity";
 import { PaymentDetail } from "./payment-detail.entity";
+import { Exclude } from "class-transformer";
 
 @Entity('payments')
 export class Payment extends BaseEntity {
@@ -25,4 +26,8 @@ export class Payment extends BaseEntity {
 
     @OneToMany(() => PaymentDetail, paymentDetail => paymentDetail.payment, { cascade: true, eager: true })
     details: PaymentDetail[];
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }
