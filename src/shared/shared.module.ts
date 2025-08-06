@@ -6,7 +6,7 @@ import { PaymentMethodController } from './payment-method/payment-method.control
 import { PaymentMethodService } from './payment-method/payment-method.service';
 import { UnitController } from './unit/unit.controller';
 import { UnitService } from './unit/unit.service';
-import { PaginationService } from './pagination/dtos/pagination.service';
+import { PaginationService } from './pagination/pagination.service';
 import { shared_module_entities } from '../entities';
 
 @Module({
