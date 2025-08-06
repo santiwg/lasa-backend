@@ -7,17 +7,17 @@ export class EmployeeController {
     constructor(private readonly employeeService: EmployeeService) {}
     
     @Get()
-    findAll() {
-        return this.employeeService.findAll();
+    async findAll() {
+        return await this.employeeService.findAll();
     }
     
     @Post()
-    create(@Body() createEmployeeDto: NewEmployeeDto) {
-        return this.employeeService.create(createEmployeeDto);
+    async create(@Body() createEmployeeDto: NewEmployeeDto) {
+        return await this.employeeService.create(createEmployeeDto);
     }
 
     @Put(':id')
-    update(@Param('id') id: number, @Body() updateEmployeeDto: NewEmployeeDto) {
-        return this.employeeService.update(id, updateEmployeeDto);
+    async update(@Param('id') id: number, @Body() updateEmployeeDto: NewEmployeeDto) {
+        return await this.employeeService.update(id, updateEmployeeDto);
     }
 }

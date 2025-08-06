@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { EmployeeRoleService } from './employee-role.service';
 import { NewEmployeeRoleDto } from './dtos/newEmployeeRole.dto';
 
@@ -7,13 +7,13 @@ export class EmployeeRoleController {
     constructor(private readonly employeeRoleService: EmployeeRoleService) {}
 
     @Get()
-    findAll() {
-        return this.employeeRoleService.findAll();
+    async findAll() {
+        return await this.employeeRoleService.findAll();
     }
 
     @Post()
-    create(newRole: NewEmployeeRoleDto) {
-        return this.employeeRoleService.create(newRole);
+    async create(@Body() newRole: NewEmployeeRoleDto) {
+        return await this.employeeRoleService.create(newRole);
     }
 
 }

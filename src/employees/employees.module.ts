@@ -11,6 +11,7 @@ import { employees_module_entities } from '../entities';
     TypeOrmModule.forFeature(employees_module_entities)
   ],
   controllers: [EmployeeController, EmployeeRoleController],
-  providers: [EmployeeService, EmployeeRoleService]
+  providers: [EmployeeService, EmployeeRoleService],
+  exports: [EmployeeService]
 })
 export class EmployeesModule {}

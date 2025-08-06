@@ -1,8 +1,8 @@
-import { IsNumber, IsPositive } from "class-validator";
+import { IsNumber, IsPositive, Min } from "class-validator";
 
 export class NewRecipeItemDto {
     @IsNumber()
-    @IsPositive()
+    @Min(1)
     ingredientId: number;
 
     @IsNumber()

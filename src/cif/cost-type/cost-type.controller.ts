@@ -7,12 +7,12 @@ export class CostTypeController {
     constructor(private readonly costTypeService: CostTypeService) { }
     
     @Get()
-    findAll() {
-        return this.costTypeService.findAll();
+    async findAll() {
+        return await this.costTypeService.findAll();
     }
 
     @Post()
-    create(@Body() costType: NewCostTypeDto) {
-        return this.costTypeService.create(costType);
+    async create(@Body() costType: NewCostTypeDto) {
+        return await this.costTypeService.create(costType);
     }
 }

@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsEnum, IsArray, ValidateNested, IsPositive, Min, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsArray, ValidateNested, IsPositive, Min, IsNotEmpty, ArrayNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NewRecipeItemDto } from './newRecipeItem.dto';
 import { ComplexityFactor } from '../product.entity';
@@ -9,7 +9,7 @@ export class NewProductDto {
     name: string;
 
     @IsNumber()
-    @IsPositive()
+    @Min(1)
     unitId: number;
 
     @IsNumber()
@@ -37,6 +37,7 @@ export class NewProductDto {
     complexityFactor: ComplexityFactor;
 
     @IsArray()
+    @ArrayNotEmpty()
     @ValidateNested({ each: true })
     @Type(() => NewRecipeItemDto)
     items: NewRecipeItemDto[];

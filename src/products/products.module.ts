@@ -8,15 +8,19 @@ import { StockMovementController } from './stock-movement/stock-movement.control
 import { StockMovementService } from './stock-movement/stock-movement.service';
 import { ProductionInstanceController } from './production-instance/production-instance.controller';
 import { ProductionInstanceService } from './production-instance/production-instance.service';
-import { UnitService } from '../shared/unit/unit.service';
-import { UnitController } from '../shared/unit/unit.controller';
 import { products_module_entities } from '../entities';
+import { SharedModule } from '../shared/shared.module';
+import { CifModule } from '../cif/cif.module';
+import { EmployeesModule } from '../employees/employees.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature(products_module_entities)
+    TypeOrmModule.forFeature(products_module_entities),
+    SharedModule,
+    CifModule,
+    EmployeesModule
   ],
-  controllers: [ProductController, IngredientController, StockMovementController, ProductionInstanceController, UnitController],
-  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService, UnitService]
+  controllers: [ProductController, IngredientController, StockMovementController, ProductionInstanceController],
+  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService]
 })
 export class ProductsModule {}

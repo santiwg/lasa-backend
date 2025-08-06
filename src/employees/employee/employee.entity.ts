@@ -28,10 +28,10 @@ export class Employee extends BaseEntity {
     @Column()
     phoneNumber: string;
     
-    @Column({ nullable: true,unique:true })
+    @Column({type: 'varchar', nullable: true, unique: true})
     cuit: string | null;
 
-    @Column({ nullable: true,unique:true })
+    @Column({type: 'varchar', nullable: true, unique: true})
     cuil: string | null;
 
     @Exclude()

@@ -18,10 +18,10 @@ export class Supplier extends BaseEntity {
     @Column()
     email: string;
 
-    @Column({unique:true,nullable:true})
+    @Column({type: 'varchar', unique: true, nullable: true})
     cuit: string | null;
 
-    @Column({unique:true,nullable:true})
+    @Column({type: 'varchar', unique: true, nullable: true})
     cuil: string | null;
 
     @OneToMany(() => Purchase, purchase => purchase.supplier)

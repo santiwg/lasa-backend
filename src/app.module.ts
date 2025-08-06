@@ -28,7 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
-    SharedModule, SalesModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule, CifModule],
+    SharedModule, SalesModule, CifModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

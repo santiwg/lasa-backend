@@ -1,12 +1,13 @@
-import { IsNumber, IsPositive, IsString } from "class-validator";
+import { IsNumber, IsPositive, IsString, IsNotEmpty, Min } from "class-validator";
 
 export class NewIngredientDto {
     
+    @IsNotEmpty()
     @IsString()
     name: string;
     
     @IsNumber()
-    @IsPositive()
+    @Min(1)
     unitId: number;
 
     @IsNumber()

@@ -6,12 +6,17 @@ import { NewCifDto } from './dtos/newCif.dto';
 import { CostTypeService } from '../cost-type/cost-type.service';
 import { UnitService } from 'src/shared/unit/unit.service';
 import { Product } from 'src/products/product/product.entity';
+import { PaginationDto } from 'src/shared/pagination/pagination.dto';
+import { PaginationService } from 'src/shared/pagination/dtos/pagination.service';
+import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
 
 @Injectable()
 export class CifService {
     constructor(@InjectRepository(Cif) private repository: Repository<Cif>,
                 private readonly costTypeService: CostTypeService,
-                private readonly unitService: UnitService) { }
+                private readonly unitService: UnitService,
+                private readonly paginationService: PaginationService
+            ) { }
 
     async createCif(newCif: NewCifDto): Promise<Cif> {
         const { costTypeId, unitId, ...cifData } = newCif;
@@ -26,8 +31,22 @@ export class CifService {
         // TypeORM añade automáticamente dateTime = NOW() si no le paso fecha
         return this.repository.save(cif);
     }
+    // 1. Método SIN paginación (para uso interno, dropdowns, etc.)
     async findAll(): Promise<Cif[]> {
-        return this.repository.find(); // No necesitamos relations porque costType y unit son eager
+        return this.repository.find({
+            order: { dateTime: 'DESC' }
+        });
+    }
+
+    // 2. Método CON paginación (para listados de UI)
+    async findAllPaginated(pagination: PaginationDto): Promise<PaginatedResponseDto<Cif>> {
+        const options = this.paginationService.getPaginationOptions(pagination, {
+            order: { dateTime: 'DESC' }
+        });
+        
+        const [data, total] = await this.repository.findAndCount(options);
+        
+        return this.paginationService.createPaginatedResponse(data, total, pagination);
     }
     async getLastMonthTotal(): Promise<number> {
         const now = new Date();

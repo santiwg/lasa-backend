@@ -1,13 +1,16 @@
-import { IsDecimal, IsEmail, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsDecimal, IsEmail, IsNumber, IsOptional, IsPositive, IsString, IsNotEmpty, Min } from "class-validator";
 
 export class NewEmployeeDto {
+    @IsNotEmpty()
     @IsString()
     name: string;
 
+    @IsNotEmpty()
     @IsString()
     @IsEmail()
     email: string;
 
+    @IsNotEmpty()
     @IsString()
     lastName: string;
 
@@ -16,9 +19,10 @@ export class NewEmployeeDto {
     hourlyWage: number;
 
     @IsNumber()
-    @IsPositive()
+    @Min(1)
     roleID: number;
 
+    @IsNotEmpty()
     @IsString()
     phoneNumber: string;
 

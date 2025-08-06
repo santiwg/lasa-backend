@@ -1,6 +1,7 @@
 
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
 export class NewUnitDto {
+  @IsNotEmpty()
   @IsString()
   name: string;
 
@@ -8,6 +9,7 @@ export class NewUnitDto {
   @IsOptional()
   description?: string;
 
+  @IsNotEmpty()
   @IsString()
   scope: string;
 }

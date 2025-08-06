@@ -8,15 +8,17 @@ export class UnitController {
     constructor(private readonly unitService: UnitService) {}
 
    @Get()
-   findAll(): Promise<Unit[]>  {
-       return this.unitService.findAll();
+   async findAll(): Promise<Unit[]>  {
+       return await this.unitService.findAll();
    }
+   
    @Post()
-   create(@Body() newUnit: NewUnitDto): Promise<Unit>  {
-        return this.unitService.create(newUnit);
+   async create(@Body() newUnit: NewUnitDto): Promise<Unit>  {
+        return await this.unitService.create(newUnit);
     }
+    
     @Get('findByScope/:scope')
-    findByScope(@Param('scope') scope: string): Promise<Unit[]> {
-        return this.unitService.findByScope(scope);
+    async findByScope(@Param('scope') scope: string): Promise<Unit[]> {
+        return await this.unitService.findByScope(scope);
     }
 }
