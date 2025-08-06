@@ -5,6 +5,7 @@ import { SaleDetail } from "../../sales/sale/sale-detail.entity";
 import { ProductionInstanceDetail } from "../production-instance/production-instance-detail.entity";
 import { Unit } from "../../shared/unit/unit.entity";
 import { Exclude } from "class-transformer";
+import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
 
 export enum ComplexityFactor {
     SIMPLE = 1,
@@ -23,19 +24,19 @@ export class Product extends BaseEntity {
     @ManyToOne(() => Unit,{eager: true})
     unit: Unit;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     currentStock: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     unitsPerRecipe: number;
 
-    @Column({ type: 'decimal', precision: 8, scale: 2 })
+    @Column({ type: 'decimal', precision: 8, scale: 2, transformer: DecimalTransformer })
     laborHoursPerRecipe: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     price: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     expectedKilosPerMonth: number;
 
     @Column({ type: 'enum', enum: ComplexityFactor, default: ComplexityFactor.SIMPLE })

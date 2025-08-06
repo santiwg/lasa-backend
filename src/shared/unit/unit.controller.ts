@@ -3,7 +3,7 @@ import { UnitService } from './unit.service';
 import { Unit } from './unit.entity';
 import { NewUnitDto } from './dtos/newUnit.dto';
 
-@Controller('unit')
+@Controller('units')
 export class UnitController {
     constructor(private readonly unitService: UnitService) {}
 
@@ -17,7 +17,7 @@ export class UnitController {
         return await this.unitService.create(newUnit);
     }
     
-    @Get('findByScope/:scope')
+    @Get('find-by-scope/:scope')
     async findByScope(@Param('scope') scope: string): Promise<Unit[]> {
         return await this.unitService.findByScope(scope);
     }

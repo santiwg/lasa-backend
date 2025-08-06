@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { EmployeeRoleService } from './employee-role.service';
 import { NewEmployeeRoleDto } from './dtos/newEmployeeRole.dto';
+import { EmployeeService } from '../employee/employee.service';
 
-@Controller('employee-role')
+@Controller('employee-roles')
 export class EmployeeRoleController {
-    constructor(private readonly employeeRoleService: EmployeeRoleService) {}
+    constructor(private readonly employeeRoleService: EmployeeRoleService,
+                private readonly employeeService: EmployeeService) {}
 
     @Get()
     async findAll() {
@@ -16,4 +18,12 @@ export class EmployeeRoleController {
         return await this.employeeRoleService.create(newRole);
     }
 
+    @Get(':roleName/average-wage')
+    async getAverageWageByRoleName(@Param('roleName') roleName: string) {
+        const averageWage = await this.employeeService.getAverageHourlyWageByRoleName(roleName);
+        return {
+            roleName,
+            averageHourlyWage: averageWage
+        };
+    }
 }

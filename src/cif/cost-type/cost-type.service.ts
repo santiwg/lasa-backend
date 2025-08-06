@@ -14,7 +14,7 @@ export class CostTypeService {
     async findById(id: number): Promise<CostType> {
         const costType = await this.repository.findOneBy({ id });
         if (!costType) {
-            throw new Error(`CostType with id ${id} not found`);
+            throw new NotFoundException(`CostType with id ${id} not found`);
         }
         return costType;
     }

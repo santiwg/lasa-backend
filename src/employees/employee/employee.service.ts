@@ -37,9 +37,11 @@ export class EmployeeService {
     }
     async getAverageHourlyWageByRole(roleId: number): Promise<number> {
         const employees = await this.repository.find({ where: { role: { id: roleId }, isActive: true } });
+        
         if (employees.length === 0) {
             throw new NotFoundException(`No employees found for role ID ${roleId}`);
         }
+        
         const totalWage = employees.reduce((sum, employee) => sum + employee.hourlyWage, 0);
         return totalWage / employees.length;
     }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
@@ -17,10 +17,25 @@ import { COST_CALCULATION_CONFIG } from 'src/shared/constants/business-constants
 @Injectable()
 export class ProductService {
     constructor(@InjectRepository(Product) private repository: Repository<Product>,
+                @InjectRepository(RecipeItem) private recipeItemRepository: Repository<RecipeItem>,
                 private readonly unitService: UnitService,
                 private readonly ingredientService: IngredientService,
                 private readonly cifService: CifService,
                 private readonly employeeService: EmployeeService) { }
+
+    // función para calcular el subtotal de un recipe item
+    private calculateRecipeItemSubtotal(item: RecipeItem | Partial<RecipeItem>): number {
+        if (!item.ingredient || typeof item.quantity !== 'number') {
+            throw new BadRequestException('Recipe item must have ingredient and quantity');
+        }
+        
+        // Verificamos que el ingredient tenga unitPrice
+        if (typeof item.ingredient.unitPrice !== 'number') {
+            throw new BadRequestException('Ingredient must have a valid unit price');
+        }
+        
+        return item.ingredient.unitPrice * item.quantity;
+    }
 
     // auxiliary method to get data needed for cost calculations
     private async getCostCalculationData(product: Product): Promise<{ averageHourlyWage: number; unitaryCif: number }> {
@@ -36,7 +51,7 @@ export class ProductService {
     private calculateRecipeCost(product: Product, averageHourlyWage: number, unitaryCif: number): number {
         //The product cost depends of the ingredients, the workers, and the CIF
         const ingredientsCost = product.recipeItems.reduce((total, item) => {
-            return total + item.getSubtotal();
+            return total + this.calculateRecipeItemSubtotal(item);
         }, 0);
         
         //labor cost is calculated based on the average hourly wage
@@ -73,7 +88,7 @@ export class ProductService {
         });
 
         if (!product) {
-            throw new BadRequestException(`Product with ID ${id} not found`);
+            throw new NotFoundException(`Product with ID ${id} not found`);
         }
 
         return product;
@@ -122,20 +137,22 @@ export class ProductService {
         });
 
         if (!existingProduct) {
-            throw new BadRequestException(`Product with ID ${id} not found`);
+            throw new NotFoundException(`Product with ID ${id} not found`);
         }
 
-        // 2. Procesar datos de actualización
+        // 2. Procesar datos de actualización básicos
         const {unitId, items, ...productData} = product;
         const unit = await this.unitService.findById(unitId);
-        const recipeItems = await this.createRecipeItems(items);
 
-        // 3. Actualizar usando Object.assign y guardar
+        // 3. Actualizar propiedades básicas
         Object.assign(existingProduct, {
             ...productData,
-            unit,
-            recipeItems
+            unit
         });
+
+        // 4. Actualizar recipeItems de forma eficiente
+        await this.updateRecipeItemsEfficiently(existingProduct, items);
+
         return await this.repository.save(existingProduct);
     }
     async updateWithCosts(id: number, product: NewProductDto): Promise<ProductWithCosts> {
@@ -160,5 +177,58 @@ export class ProductService {
         }
         
         return recipeItems;
+    }
+
+    private async updateRecipeItemsEfficiently(product: Product, newItems: NewRecipeItemDto[]): Promise<void> {
+        // Crear mapas para búsqueda rápida
+        const newItemsMap = new Map<number, NewRecipeItemDto>();
+        newItems.forEach(item => {
+            newItemsMap.set(item.ingredientId, item);
+        });
+
+        const existingItemsMap = new Map<number, RecipeItem>();
+        product.recipeItems.forEach(item => {
+            existingItemsMap.set(item.ingredient.id, item);
+        });
+
+        // 1. Identificar items a eliminar y eliminarlos físicamente
+        const itemsToDelete = product.recipeItems.filter(item => 
+            !newItemsMap.has(item.ingredient.id)
+        );
+
+        if (itemsToDelete.length > 0) {
+            await this.recipeItemRepository.remove(itemsToDelete);
+        }
+
+        // 2. Actualizar items existentes que se mantienen
+        const updatedItems: RecipeItem[] = [];
+        
+        for (const existingItem of product.recipeItems) {
+            const ingredientId = existingItem.ingredient.id;
+            const newItemData = newItemsMap.get(ingredientId);
+            
+            if (newItemData) {
+                // Si ya existe, actualizar cantidad del item
+                existingItem.quantity = newItemData.quantity;
+                updatedItems.push(existingItem);
+            }
+        }
+
+        // 3. Crear nuevos items
+        for (const newItem of newItems) {
+            if (!existingItemsMap.has(newItem.ingredientId)) {
+                // Es un nuevo ingrediente, crear RecipeItem
+                const ingredient = await this.ingredientService.findById(newItem.ingredientId);
+                const recipeItem = this.recipeItemRepository.create({
+                    ingredient,
+                    quantity: newItem.quantity,
+                    product: product
+                });
+                updatedItems.push(recipeItem);
+            }
+        }
+
+        // 4. Actualizar la colección
+        product.recipeItems = updatedItems;
     }
 }

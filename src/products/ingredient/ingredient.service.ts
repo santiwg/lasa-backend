@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ingredient } from './ingredient.entity';
@@ -16,7 +16,7 @@ export class IngredientService {
         });
 
         if (!ingredient) {
-            throw new BadRequestException(`Ingredient with ID ${id} not found`);
+            throw new NotFoundException(`Ingredient with ID ${id} not found`);
         }
 
         return ingredient;
@@ -44,7 +44,7 @@ export class IngredientService {
         });
 
         if (!existingIngredient) {
-            throw new BadRequestException(`Ingredient with ID ${id} not found`);
+            throw new NotFoundException(`Ingredient with ID ${id} not found`);
         }
 
         // 2. Procesar datos de actualización

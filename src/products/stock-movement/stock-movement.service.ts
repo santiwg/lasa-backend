@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StockMovement } from './stock-movement.entity';
@@ -80,7 +80,7 @@ export class StockMovementService {
         });
 
         if (!stockMovement) {
-            throw new BadRequestException(`Stock movement with ID ${id} not found`);
+            throw new NotFoundException(`Stock movement with ID ${id} not found`);
         }
 
         return stockMovement;

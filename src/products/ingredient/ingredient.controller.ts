@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { IngredientService } from './ingredient.service';
 import { NewIngredientDto } from './dtos/newIngredient.dto';
 
-@Controller('ingredient')
+@Controller('ingredients')
 export class IngredientController {
     constructor(private readonly ingredientService: IngredientService) {}
 

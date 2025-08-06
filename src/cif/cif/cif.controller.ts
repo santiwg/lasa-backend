@@ -5,7 +5,7 @@ import { Cif } from './cif.entity';
 import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
 import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
 
-@Controller('cif')
+@Controller('cifs')
 export class CifController {
     constructor(private readonly cifService: CifService) { }
     
@@ -14,12 +14,12 @@ export class CifController {
         return await this.cifService.findAllPaginated(pagination);
     }
     
-    @Get('currentMonthTotal')
+    @Get('current-month-total')
     async findCurrentMonthTotal(): Promise<number> {
         return await this.cifService.getCurrentMonthTotal();
     }
     
-    @Get('lastMonthTotal')
+    @Get('last-month-total')
     async findLastMonthTotal(): Promise<number> {
         return await this.cifService.getLastMonthTotal();
     }

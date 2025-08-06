@@ -1,4 +1,4 @@
 import { Controller } from '@nestjs/common';
 
-@Controller('branch')
+@Controller('branches')
 export class BranchController {}

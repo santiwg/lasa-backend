@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CostTypeService } from './cost-type.service';
 import { NewCostTypeDto } from './dtos/newCostType.dto';
 
-@Controller('cost-type')
+@Controller('cost-types')
 export class CostTypeController {
     constructor(private readonly costTypeService: CostTypeService) { }
     

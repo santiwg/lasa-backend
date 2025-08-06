@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { EmployeeRole } from "../employee-role/employee-role.entity";
 import { Exclude } from "class-transformer";
+import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
 
 @Entity('employees')
 export class Employee extends BaseEntity {
@@ -16,7 +17,12 @@ export class Employee extends BaseEntity {
     @Column()
     lastName: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ 
+        type: 'decimal', 
+        precision: 10, 
+        scale: 2,
+        transformer: DecimalTransformer
+    })
     hourlyWage: number;
 
     @Column({ default: true })
