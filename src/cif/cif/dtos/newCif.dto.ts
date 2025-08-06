@@ -1,6 +1,5 @@
-import { IsDate, IsOptional, Min } from "class-validator";
+import { IsDate, IsOptional, IsPositive, Min } from "class-validator";
 import { Type } from "class-transformer";
-import { IsPositive } from "class-validator/types/decorator/number/IsPositive";
 import { IsNumber } from "class-validator/types/decorator/typechecker/IsNumber";
 import { IsNotFutureDate } from "../../../shared/validators/is-not-future-date.validator";
 

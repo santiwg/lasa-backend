@@ -2,8 +2,8 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CifService } from './cif.service';
 import { NewCifDto } from './dtos/newCif.dto';
 import { Cif } from './cif.entity';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
 import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
 
 @Controller('cif')
 export class CifController {

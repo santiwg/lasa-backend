@@ -11,14 +11,14 @@ import { QueryFailedError } from 'typeorm';
 
 @Catch() // Sin parámetros = captura TODAS las excepciones, podría especificarse un tipo de excepcion
 export class GlobalExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(GlobalExceptionFilter.name);
+    private readonly logger = new Logger(GlobalExceptionFilter.name); //ese parametro es la "etiqueta" o "contexto" del logger, cuando el logger registra un mensaje, muestra de dónde viene
 
     catch(exception: unknown, host: ArgumentsHost) {
         
         //obtenemos contexto de la peticion
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
-        const request = ctx.getRequest();
+        const response = ctx.getResponse<Response>(); //objeto Response de Express que representa la respuesta HTTP que se enviará al cliente.
+        const request = ctx.getRequest(); //sus datos se usan más abajo
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Error interno del servidor';
@@ -39,7 +39,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         // Manejo de errores de base de datos (TypeORM)
         else if (exception instanceof QueryFailedError) {
             // Errores específicos de base de datos
-            const error = exception as any;
+            const error = exception as any; //Sin as any TypeScript se queja por que exception no tiene 'code' definido explicitamente, viene del driver
             
             // Error de clave duplicada (datos del cliente)
             if (error.code === '23505') {
@@ -65,8 +65,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         // Log del error
         this.logger.error(
-            `${request.method} ${request.url} - ${status} - ${message}`,
-            exception instanceof Error ? exception.stack : exception
+            `${request.method} ${request.url} - ${status} - ${message}`, //Primer parámetro: Mensaje principal
+            exception instanceof Error ? exception.stack : exception //Segundo parámetro: Contexto adicional (stack trace o excepción completa)
+            // stack trace es la pila de llamadas que muestra exactamente dónde ocurrió el error y cómo se llegó allí
         );
 
         // Respuesta consistente
@@ -75,7 +76,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             timestamp: new Date().toISOString(),
             path: request.url,
             method: request.method,
-            message: Array.isArray(message) ? message : [message]
+            message: Array.isArray(message) ? message : [message] //Por si hay errores multiples
         });
     }
 }

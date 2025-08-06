@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationDto } from './dtos/pagination.dto';
 import { PaginatedResponseDto } from './dtos/paginated-response.dto';
+import { PaginationDto } from './dtos/pagination.dto';
 
 @Injectable()
 export class PaginationService {

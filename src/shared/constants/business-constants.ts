@@ -11,5 +11,5 @@ export const COST_CALCULATION_CONFIG = {
     
     // Respaldo: ID para casos donde la búsqueda por nombre falle
     // TODO: Configurar este ID según tu base de datos si es necesario
-    DIRECT_LABOR_ROLE_ID: 1
+    DIRECT_LABOR_ROLE_ID: 4
 } as const;

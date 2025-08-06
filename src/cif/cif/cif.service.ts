@@ -6,9 +6,9 @@ import { NewCifDto } from './dtos/newCif.dto';
 import { CostTypeService } from '../cost-type/cost-type.service';
 import { UnitService } from 'src/shared/unit/unit.service';
 import { Product } from 'src/products/product/product.entity';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
 import { PaginationService } from 'src/shared/pagination/pagination.service';
 import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
 
 @Injectable()
 export class CifService {
