@@ -3,6 +3,7 @@ import { CheckType } from "../check-type/check-type.entity";
 import { State } from "../state/state.entity";
 import { Payment } from "../../purchases/payment/payment.entity";
 import { PaymentCollection } from "../../sales/payment-collection/payment-collection.entity";
+import { DecimalTransformer } from "../transformers/decimal.transformer";
 
 //@Entity('checks')
 //for now I don't save the check in the database
@@ -13,7 +14,7 @@ export abstract class Check extends BaseEntity { //not finished
     @Column()
     holder: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     amount: number;
 
     @ManyToOne(() => CheckType, checkType => checkType.checks)

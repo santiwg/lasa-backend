@@ -39,8 +39,8 @@ export class Product extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     expectedKilosPerMonth: number;
 
-    @Column({ type: 'enum', enum: ComplexityFactor, default: ComplexityFactor.SIMPLE })
-    complexityFactor: ComplexityFactor;
+    @Column({ type: 'decimal', precision: 3, scale: 1, transformer: DecimalTransformer, default: 1.0 })
+    complexityFactor: number;
 
     @OneToMany(() => StockMovement, stockMovement => stockMovement.product)
     stockMovements: StockMovement[];

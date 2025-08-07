@@ -13,7 +13,15 @@ export class RecipeItem extends BaseEntity {
     @ManyToOne(() => Ingredient, ingredient => ingredient.recipeItems, { eager: true })
     ingredient: Ingredient;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ 
+        type: 'decimal', 
+        precision: 10, 
+        scale: 2,
+        transformer: {
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value)
+        }
+    })
     quantity: number;
 
     

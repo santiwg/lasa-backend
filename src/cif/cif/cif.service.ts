@@ -90,6 +90,7 @@ export class CifService {
     }
     async getUnitaryCif(product: Product, allProducts: Product[]): Promise<number> {
         const weightedTotal = this.getWeightedTotal(allProducts);
+        
         if (weightedTotal === 0) return 0; // Evitar división por cero
 
         //kg × factor de cada producto es la ponderacion
@@ -101,11 +102,14 @@ export class CifService {
         const totalCifForProduct = totalCif * percentage; // CIF asignado a este producto
         // Coste CIF unitario = CIF asignado al producto / producción esperada del producto
         const unitaryCif = totalCifForProduct / product.expectedKilosPerMonth;
+        
         return unitaryCif;
     }
     getWeightedTotal(products: Product[]): number {
         //∑ kg × factor de cada producto
         //suma de la cantidad ponderada de cada producto
-        return products.reduce((total, product) => total + product.expectedKilosPerMonth * product.complexityFactor, 0);
+        return products.reduce((total, product) => {
+            return total + product.expectedKilosPerMonth * product.complexityFactor;
+        }, 0);
     }
 }

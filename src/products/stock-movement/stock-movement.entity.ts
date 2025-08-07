@@ -2,13 +2,14 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColu
 import { Product } from "../product/product.entity";
 import { Ingredient } from "../ingredient/ingredient.entity";
 import { Exclude } from "class-transformer";
+import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
 
 @Entity('stock-movements')
 export class StockMovement extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     quantity: number;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

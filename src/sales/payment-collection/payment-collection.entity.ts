@@ -4,6 +4,7 @@ import { PaymentMethod } from "../../shared/payment-method/payment-method.entity
 // import { Check } from "../../shared/check/check.entity";
 import { PaymentCollectionDetail } from "./payment-collection-detail.entity";
 import { Exclude } from "class-transformer";
+import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
 
 @Entity('payment-collections')
 export class PaymentCollection extends BaseEntity {
@@ -16,7 +17,7 @@ export class PaymentCollection extends BaseEntity {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     dateTime: Date;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     amount: number;
 
     @ManyToOne(() => Customer, customer => customer.paymentCollections)
