@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { StockMovementService } from './stock-movement.service';
 import { NewStockMovementDto } from './dtos/newStockMovement.dto';
 
-@Controller('stock-movement')
+@Controller('stock-movements')
 export class StockMovementController {
     constructor(private readonly stockMovementService: StockMovementService) {}
 
