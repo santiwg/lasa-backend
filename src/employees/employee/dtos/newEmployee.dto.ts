@@ -20,7 +20,7 @@ export class NewEmployeeDto {
 
     @IsNumber()
     @Min(1)
-    roleID: number;
+    roleId: number;
 
     @IsNotEmpty()
     @IsString()
@@ -33,4 +33,7 @@ export class NewEmployeeDto {
     @IsString()
     @IsOptional()
     cuil?: string;
+
+    @IsOptional()
+    isActive?: boolean = true;
 }
