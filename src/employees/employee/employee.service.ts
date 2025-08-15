@@ -22,10 +22,10 @@ export class EmployeeService {
     }
     async create(newEmployee: NewEmployeeDto): Promise<Employee> {
         // Validar que el rol existe
-        const role = await this.employeeRoleService.findById(newEmployee.roleID);
+        const role = await this.employeeRoleService.findById(newEmployee.roleId);
 
-        // Separar roleID del resto de datos
-        const { roleID, ...employeeData } = newEmployee;
+        // Separar roleId del resto de datos
+        const { roleId, ...employeeData } = newEmployee;
 
         // Crear empleado con datos válidos
         const employee = this.repository.create({
@@ -61,10 +61,10 @@ export class EmployeeService {
         const employee = await this.findById(id);
 
         // Validar que el rol existe
-        const role = await this.employeeRoleService.findById(updateEmployee.roleID);
+        const role = await this.employeeRoleService.findById(updateEmployee.roleId);
 
-        // Separar roleID del resto de datos
-        const { roleID, ...employeeData } = updateEmployee;
+        // Separar roleId del resto de datos
+        const { roleId, ...employeeData } = updateEmployee;
 
         // Actualizar empleado con datos válidos
         Object.assign(employee, employeeData, { role });
