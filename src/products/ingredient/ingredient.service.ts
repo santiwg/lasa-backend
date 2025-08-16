@@ -4,11 +4,14 @@ import { Repository } from 'typeorm';
 import { Ingredient } from './ingredient.entity';
 import { NewIngredientDto } from './dtos/newIngredient.dto';
 import { UnitService } from 'src/shared/unit/unit.service';
+import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationService } from 'src/shared/pagination/pagination.service';
 
 @Injectable()
 export class IngredientService {
     constructor(@InjectRepository(Ingredient) private repository: Repository<Ingredient>,
-                private readonly unitService: UnitService) { }
+        private readonly unitService: UnitService, private readonly paginationService: PaginationService) { }
 
     async findById(id: number): Promise<Ingredient> {
         const ingredient = await this.repository.findOne({
@@ -27,6 +30,17 @@ export class IngredientService {
     async findAll(): Promise<Ingredient[]> {
         return this.repository.find();
     }
+    // 2. Método CON paginación (para listados de UI)
+    async findAllPaginated(pagination: PaginationDto): Promise<PaginatedResponseDto<Ingredient>> {
+        const options = this.paginationService.getPaginationOptions(pagination, {
+            order: { name: 'ASC' } // Ordena por nombre de forma ascendente (A-Z)
+        });
+
+        const [data, total] = await this.repository.findAndCount(options);
+
+        return this.paginationService.createPaginatedResponse(data, total, pagination);
+    }
+
     async create(ingredient: NewIngredientDto): Promise<Ingredient> {
         const unit = await this.unitService.findById(ingredient.unitId);
         const { unitId, ...ingredientData } = ingredient;
