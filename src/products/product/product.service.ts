@@ -252,4 +252,9 @@ export class ProductService {
         // 4. Actualizar la colección
         product.recipeItems = updatedItems;
     }
+    async delete(id: number): Promise<{ message: string; }> {
+        const product = await this.findById(id);
+        await this.repository.softRemove(product);
+        return { message: `Product with ID ${id} deleted successfully` };
+    }
 }
