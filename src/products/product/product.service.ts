@@ -103,6 +103,11 @@ export class ProductService {
         return await this.convertToProductWithCosts(product);
     }
     async updateStock(id: number, quantityChange: number): Promise<void> {
+        const product = await this.findById(id);
+        const newStock = product.currentStock + quantityChange;
+        if (newStock < 0) {
+            throw new BadRequestException(`Stock cannot be negative. Current stock: ${product.currentStock}, attempted change: ${quantityChange}`);
+        }
         await this.repository.increment({ id }, 'currentStock', quantityChange);
     }
     async findAll(): Promise<Product[]> {

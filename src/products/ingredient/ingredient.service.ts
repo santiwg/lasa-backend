@@ -25,6 +25,11 @@ export class IngredientService {
         return ingredient;
     }
     async updateStock(id: number, quantityChange: number): Promise<void> {
+        const ingredient = await this.findById(id);
+        const newStock = ingredient.currentStock + quantityChange;
+        if (newStock < 0) {
+            throw new BadRequestException(`Stock cannot be negative. Current stock: ${ingredient.currentStock}, attempted change: ${quantityChange}`);
+        }
         await this.repository.increment({ id }, 'currentStock', quantityChange);
     }
     async findAll(): Promise<Ingredient[]> {
