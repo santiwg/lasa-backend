@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Ingredient } from './ingredient.entity';
 import { NewIngredientDto } from './dtos/newIngredient.dto';
 import { UnitService } from 'src/shared/unit/unit.service';
@@ -24,13 +24,17 @@ export class IngredientService {
 
         return ingredient;
     }
-    async updateStock(id: number, quantityChange: number): Promise<void> {
-        const ingredient = await this.findById(id);
+    async updateStock(id: number, quantityChange: number, manager?: EntityManager): Promise<void> {
+        const repo = manager ? manager.getRepository(Ingredient) : this.repository; //puede usar un manager para transaccion
+        const ingredient = await repo.findOne({ where: { id } });
+        if (!ingredient) {
+            throw new NotFoundException(`Ingredient with ID ${id} not found`);
+        }
         const newStock = ingredient.currentStock + quantityChange;
         if (newStock < 0) {
             throw new BadRequestException(`Stock cannot be negative. Current stock: ${ingredient.currentStock}, attempted change: ${quantityChange}`);
         }
-        await this.repository.increment({ id }, 'currentStock', quantityChange);
+        await repo.increment({ id }, 'currentStock', quantityChange);
     }
     async findAll(): Promise<Ingredient[]> {
         return this.repository.find();
