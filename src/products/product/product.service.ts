@@ -11,29 +11,33 @@ import { ProductWithCosts } from 'src/products/product/dtos/productWithCost.inte
 import { CifService } from 'src/cif/cif/cif.service';
 import { EmployeeService } from 'src/employees/employee/employee.service';
 import { COST_CALCULATION_CONFIG } from 'src/shared/constants/business-constants';
+import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationService } from 'src/shared/pagination/pagination.service';
 
 
 
 @Injectable()
 export class ProductService {
     constructor(@InjectRepository(Product) private repository: Repository<Product>,
-                @InjectRepository(RecipeItem) private recipeItemRepository: Repository<RecipeItem>,
-                private readonly unitService: UnitService,
-                private readonly ingredientService: IngredientService,
-                private readonly cifService: CifService,
-                private readonly employeeService: EmployeeService) { }
+        @InjectRepository(RecipeItem) private recipeItemRepository: Repository<RecipeItem>,
+        private readonly unitService: UnitService,
+        private readonly ingredientService: IngredientService,
+        private readonly cifService: CifService,
+        private readonly employeeService: EmployeeService,
+        private readonly paginationService: PaginationService) { }
 
     // función para calcular el subtotal de un recipe item
     private calculateRecipeItemSubtotal(item: RecipeItem | Partial<RecipeItem>): number {
         if (!item.ingredient || typeof item.quantity !== 'number') {
             throw new BadRequestException('Recipe item must have ingredient and quantity');
         }
-        
+
         // Verificamos que el ingredient tenga unitPrice
         if (typeof item.ingredient.unitPrice !== 'number') {
             throw new BadRequestException('Ingredient must have a valid unit price');
         }
-        
+
         return item.ingredient.unitPrice * item.quantity;
     }
 
@@ -41,7 +45,7 @@ export class ProductService {
     private async getCostCalculationData(product: Product): Promise<{ averageHourlyWage: number; unitaryCif: number }> {
         // obtener todos los productos para el cálculo del CIF unitario
         const allProducts = await this.repository.find();
-        
+
         return {
             averageHourlyWage: await this.employeeService.getAverageHourlyWageByRoleName(COST_CALCULATION_CONFIG.DIRECT_LABOR_ROLE_NAME),
             unitaryCif: await this.cifService.getUnitaryCif(product, allProducts)
@@ -53,11 +57,11 @@ export class ProductService {
         const ingredientsCost = product.recipeItems.reduce((total, item) => {
             return total + this.calculateRecipeItemSubtotal(item);
         }, 0);
-        
+
         //labor cost is calculated based on the average hourly wage
         const laborCost = product.laborHoursPerRecipe * averageHourlyWage;
         const cifCost = unitaryCif * product.unitsPerRecipe;
-        
+
         return ingredientsCost + laborCost + cifCost;
     }
 
@@ -109,16 +113,33 @@ export class ProductService {
     async findAllWithCosts(): Promise<ProductWithCosts[]> {
         const products = await this.findAll();
         const productsWithCosts: ProductWithCosts[] = [];
-        
+
         for (const product of products) {
             const productWithCosts = await this.convertToProductWithCosts(product);
             productsWithCosts.push(productWithCosts);
         }
-        
+
         return productsWithCosts;
     }
+    async findAllWithCostsPaginated(pagination: PaginationDto): Promise<PaginatedResponseDto<ProductWithCosts>> {
+        const options = this.paginationService.getPaginationOptions(pagination, {
+            order: { name: 'ASC' } // Ordena por nombre de forma ascendente (A-Z)
+        });
+
+        const [data, total] = await this.repository.findAndCount(options);
+
+        const productsWithCosts: ProductWithCosts[] = [];
+
+        for (const product of data) {
+            const productWithCosts = await this.convertToProductWithCosts(product);
+            productsWithCosts.push(productWithCosts);
+        }
+
+        return this.paginationService.createPaginatedResponse(productsWithCosts, total, pagination);
+
+    }
     async create(product: NewProductDto): Promise<Product> {
-        const {unitId, items, ...productData} = product;
+        const { unitId, items, ...productData } = product;
         const unit = await this.unitService.findById(unitId);
         const recipeItems = await this.createRecipeItems(items);
 
@@ -127,7 +148,7 @@ export class ProductService {
             unit,
             recipeItems //se guardarán automáticamente gracias a la opción cascade: true.
         });
-        
+
         return await this.repository.save(newProduct);
     }
     async update(id: number, product: NewProductDto): Promise<Product> {
@@ -141,7 +162,7 @@ export class ProductService {
         }
 
         // 2. Procesar datos de actualización básicos
-        const {unitId, items, ...productData} = product;
+        const { unitId, items, ...productData } = product;
         const unit = await this.unitService.findById(unitId);
 
         // 3. Actualizar propiedades básicas
@@ -166,7 +187,7 @@ export class ProductService {
     }
     async createRecipeItems(items: NewRecipeItemDto[]): Promise<Partial<RecipeItem>[]> {
         const recipeItems: Partial<RecipeItem>[] = [];
-        
+
         for (const item of items) {
             const ingredient = await this.ingredientService.findById(item.ingredientId);
             recipeItems.push({
@@ -175,7 +196,7 @@ export class ProductService {
                 // No incluimos id ni product porque se asignarán automáticamente
             });
         }
-        
+
         return recipeItems;
     }
 
@@ -192,7 +213,7 @@ export class ProductService {
         });
 
         // 1. Identificar items a eliminar y eliminarlos físicamente
-        const itemsToDelete = product.recipeItems.filter(item => 
+        const itemsToDelete = product.recipeItems.filter(item =>
             !newItemsMap.has(item.ingredient.id)
         );
 
@@ -202,11 +223,11 @@ export class ProductService {
 
         // 2. Actualizar items existentes que se mantienen
         const updatedItems: RecipeItem[] = [];
-        
+
         for (const existingItem of product.recipeItems) {
             const ingredientId = existingItem.ingredient.id;
             const newItemData = newItemsMap.get(ingredientId);
-            
+
             if (newItemData) {
                 // Si ya existe, actualizar cantidad del item
                 existingItem.quantity = newItemData.quantity;
