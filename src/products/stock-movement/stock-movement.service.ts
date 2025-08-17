@@ -17,41 +17,35 @@ export class StockMovementService {
     ) { }
 
     async create(newStockMovement: NewStockMovementDto): Promise<StockMovement> {
-        // Validación de negocio: exactamente uno de los IDs debe estar presente
+        //uso uno transacción para la actualización del atributo stock en la unidad y el movimiento
+        return await this.repository.manager.transaction(async manager => {
+        // Validación de negocio
         this.validateExactlyOneId(newStockMovement);
 
-        // Fetch the actual entity based on which ID was provided using services
         let product: Product | null = null;
         let ingredient: Ingredient | null = null;
 
         if (newStockMovement.productId) {
             product = await this.productService.findById(newStockMovement.productId);
+            await this.productService.updateStock(product.id, newStockMovement.quantity, manager);
         }
 
         if (newStockMovement.ingredientId) {
             ingredient = await this.ingredientService.findById(newStockMovement.ingredientId);
+            await this.ingredientService.updateStock(ingredient.id, newStockMovement.quantity, manager);
         }
 
-        // Destructure to remove ID attributes
         const { productId, ingredientId, ...stockMovementData } = newStockMovement;
 
-        const stockMovement = this.repository.create({
+        const stockMovement = manager.create(StockMovement, {
             ...stockMovementData,
             product,
             ingredient
         });
 
-        const savedStockMovement = await this.repository.save(stockMovement);
-
-        //Update the stock attribute for the product or ingredient
-        if (product) {
-            await this.productService.updateStock(product.id, newStockMovement.quantity);
-        }
-        if (ingredient) {
-            await this.ingredientService.updateStock(ingredient.id, newStockMovement.quantity);
-        }
-        return savedStockMovement;
-    }
+        return await manager.save(stockMovement);
+    });
+}
 
     private validateExactlyOneId(dto: NewStockMovementDto): void {
         //when a stock movement is registered, this will be for either a product or an ingredient
