@@ -155,7 +155,8 @@ export class ProductService {
         const newProduct = this.repository.create({
             ...productData,
             unit,
-            recipeItems //se guardarán automáticamente gracias a la opción cascade: true.
+            recipeItems, //se guardarán automáticamente gracias a la opción cascade: true.
+            currentStock: 0 //Se crea con stock inicial 0
         });
 
         return await this.repository.save(newProduct);

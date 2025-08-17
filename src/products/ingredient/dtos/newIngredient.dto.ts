@@ -10,9 +10,10 @@ export class NewIngredientDto {
     @Min(1)
     unitId: number;
 
+    /* De momento no permito que me ingrese el stock actual, lo tiene que hacer por movimiento stock
     @IsNumber()
     @IsPositive()
-    currentStock: number;
+    currentStock: number;*/
 
     @IsNumber()
     @IsPositive()

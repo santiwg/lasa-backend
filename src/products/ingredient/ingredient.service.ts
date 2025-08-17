@@ -55,7 +55,8 @@ export class IngredientService {
         const { unitId, ...ingredientData } = ingredient;
         const newIngredient = this.repository.create({
             ...ingredientData,
-            unit
+            unit,
+            currentStock: 0 //Se crea con stock inicial 0
         });
         return this.repository.save(newIngredient);
     }

@@ -12,9 +12,10 @@ export class NewProductDto {
     @Min(1)
     unitId: number;
 
+    /* De momento solo puede manipular el stock mediante movimientos de stock.
     @IsNumber()
     @Min(0)
-    currentStock: number;
+    currentStock: number;*/
     
 
     @IsNumber()
