@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { Product } from "./product.entity";
 import { Ingredient } from "../ingredient/ingredient.entity";
 
@@ -24,8 +24,6 @@ export class RecipeItem extends BaseEntity {
     })
     quantity: number;
 
-    
-    getSubtotal(): number {
-        return this.ingredient.unitPrice * this.quantity;
-    }
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

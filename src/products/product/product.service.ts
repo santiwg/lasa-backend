@@ -45,10 +45,12 @@ export class ProductService {
     private async getCostCalculationData(product: Product): Promise<{ averageHourlyWage: number; unitaryCif: number }> {
         // obtener todos los productos para el cálculo del CIF unitario
         const allProducts = await this.repository.find();
-
+        const unitaryCifPerKg = await this.cifService.getUnitaryCif(product, allProducts);
+        // Convertir a gramos si es necesario (revisar esta lógica)
+        const unitaryCif=product.unit.name === 'Gramos' ? unitaryCifPerKg / 1000 : unitaryCifPerKg; 
         return {
             averageHourlyWage: await this.employeeService.getAverageHourlyWageByRoleName(COST_CALCULATION_CONFIG.DIRECT_LABOR_ROLE_NAME),
-            unitaryCif: await this.cifService.getUnitaryCif(product, allProducts)
+            unitaryCif:unitaryCif
         };
     }
 
