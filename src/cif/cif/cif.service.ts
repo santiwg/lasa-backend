@@ -100,7 +100,7 @@ export class CifService {
         //usamos el total de CIF del mes anterior, pues en el mes actual aún no necesariamente se registraron todos los cif y puede ser engañoso
         const totalCif = await this.getLastMonthTotal();
         const totalCifForProduct = totalCif * percentage; // CIF asignado a este producto
-        // Coste CIF unitario = CIF asignado al producto / producción esperada del producto
+        // Coste CIF unitario por kilo = CIF asignado al producto / producción esperada del producto
         const unitaryCif = totalCifForProduct / product.expectedKilosPerMonth;
         
         return unitaryCif;

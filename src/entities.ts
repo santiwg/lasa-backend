@@ -9,7 +9,7 @@ import { Unit } from './shared/unit/unit.entity';
 import { Employee } from './employees/employee/employee.entity';
 import { EmployeeRole } from './employees/employee-role/employee-role.entity';
 
-import { User } from './auth/user/user.entity';
+import { authEntities} from './auth/entities/index';
 
 import { Bakery } from './bakery/bakery/bakery.entity';
 import { Branch } from './bakery/branch/branch.entity';
@@ -51,9 +51,8 @@ export const employees_module_entities = [
 ];
 
 // Auth module entities
-export const auth_module_entities = [
-  User
-];
+export const auth_module_entities=[authEntities]
+
 
 // Bakery module entities
 export const bakery_module_entities = [
