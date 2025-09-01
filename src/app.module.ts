@@ -15,7 +15,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.db',
+      //según la existencia y valor de la variable de entorno usamos un archivo u otro
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
