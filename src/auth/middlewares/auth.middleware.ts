@@ -22,7 +22,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const request: RequestWithUser = context.switchToHttp().getRequest();
-      const authHeader = request.headers.authorization;
+      const authHeader = request.headers?.authorization;
       if (!authHeader) {
         throw new UnauthorizedException('El token no existe');
       }
