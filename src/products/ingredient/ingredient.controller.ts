@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { NewIngredientDto } from './dtos/newIngredient.dto';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
-import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationDto } from 'src/utilities/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
 import { Ingredient } from './ingredient.entity';
 
 @Controller('ingredients')

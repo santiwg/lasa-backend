@@ -1,6 +1,6 @@
 import { IsDate, IsOptional, IsPositive, Min, IsNumber } from "class-validator";
 import { Type } from "class-transformer";
-import { IsNotFutureDate } from "../../../shared/validators/is-not-future-date.validator";
+import { IsNotFutureDate } from "../../../utilities/validators/is-not-future-date.validator";
 
 export class NewCifDto {
     @IsNumber()

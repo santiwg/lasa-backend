@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Purchase } from "./purchase.entity";
 import { Ingredient } from "../../products/ingredient/ingredient.entity";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('purchase-details')
 export class PurchaseDetail extends BaseEntity {

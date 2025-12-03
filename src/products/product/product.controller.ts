@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/
 import { ProductService } from './product.service';
 import { ProductWithCosts } from './dtos/productWithCost.interface';
 import { NewProductDto } from './dtos/newProduct.dto';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
-import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
+import { PaginationDto } from 'src/utilities/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
 
 @Controller('products')
 export class ProductController {

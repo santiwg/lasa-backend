@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColu
 import { CostType } from "../cost-type/cost-type.entity";
 import { Unit } from "../../shared/unit/unit.entity";
 import { Exclude } from "class-transformer";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('cifs')
 export class Cif extends BaseEntity {

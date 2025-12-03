@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
+import { GlobalExceptionFilter } from './utilities/filters/global-exception.filter';
 
 async function bootstrap() {
   // Load environment variables from .env

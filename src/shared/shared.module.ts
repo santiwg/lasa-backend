@@ -6,7 +6,6 @@ import { PaymentMethodController } from './payment-method/payment-method.control
 import { PaymentMethodService } from './payment-method/payment-method.service';
 import { UnitController } from './unit/unit.controller';
 import { UnitService } from './unit/unit.service';
-import { PaginationService } from './pagination/pagination.service';
 import { shared_module_entities } from '../entities';
 
 @Module({
@@ -14,7 +13,7 @@ import { shared_module_entities } from '../entities';
     TypeOrmModule.forFeature(shared_module_entities)
   ],
   controllers: [StateController, PaymentMethodController, UnitController],
-  providers: [StateService, PaymentMethodService, UnitService, PaginationService],
-  exports: [UnitService, StateService, PaymentMethodService, PaginationService]
+  providers: [StateService, PaymentMethodService, UnitService],
+  exports: [UnitService, StateService, PaymentMethodService]
 })
 export class SharedModule {}

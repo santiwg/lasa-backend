@@ -4,9 +4,9 @@ import { EntityManager, Repository } from 'typeorm';
 import { Ingredient } from './ingredient.entity';
 import { NewIngredientDto } from './dtos/newIngredient.dto';
 import { UnitService } from 'src/shared/unit/unit.service';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
-import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
-import { PaginationService } from 'src/shared/pagination/pagination.service';
+import { PaginationDto } from 'src/utilities/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
+import { PaginationService } from 'src/utilities/pagination/pagination.service';
 
 @Injectable()
 export class IngredientService {
@@ -30,7 +30,7 @@ export class IngredientService {
         if (!ingredient) {
             throw new NotFoundException(`Ingredient with ID ${id} not found`);
         }
-        const newStock = ingredient.currentStock + quantityChange;
+        const newStock = ingredient.currentStock + quantityChange; //este paso es para validar que no baje de 0, pero la actualizacion se hace con increment 
         if (newStock < 0) {
             throw new BadRequestException(`Stock cannot be negative. Current stock: ${ingredient.currentStock}, attempted change: ${quantityChange}`);
         }

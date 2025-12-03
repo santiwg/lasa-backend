@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { Payment } from "./payment.entity";
 import { Purchase } from "../purchase/purchase.entity";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('payment-details')
 export class PaymentDetail extends BaseEntity {

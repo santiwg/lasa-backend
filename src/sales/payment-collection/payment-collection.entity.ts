@@ -4,7 +4,7 @@ import { PaymentMethod } from "../../shared/payment-method/payment-method.entity
 // import { Check } from "../../shared/check/check.entity";
 import { PaymentCollectionDetail } from "./payment-collection-detail.entity";
 import { Exclude } from "class-transformer";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('payment-collections')
 export class PaymentCollection extends BaseEntity {

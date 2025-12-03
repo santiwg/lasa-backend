@@ -5,7 +5,7 @@ import { SaleDetail } from "../../sales/sale/sale-detail.entity";
 import { ProductionInstanceDetail } from "../production-instance/production-instance-detail.entity";
 import { Unit } from "../../shared/unit/unit.entity";
 import { Exclude } from "class-transformer";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 export enum ComplexityFactor {
     SIMPLE = 1,

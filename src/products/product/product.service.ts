@@ -10,10 +10,10 @@ import { RecipeItem } from './recipe-item.entity';
 import { ProductWithCosts } from 'src/products/product/dtos/productWithCost.interface';
 import { CifService } from 'src/cif/cif/cif.service';
 import { EmployeeService } from 'src/employees/employee/employee.service';
-import { COST_CALCULATION_CONFIG } from 'src/shared/constants/business-constants';
-import { PaginationDto } from 'src/shared/pagination/dtos/pagination.dto';
-import { PaginatedResponseDto } from 'src/shared/pagination/dtos/paginated-response.dto';
-import { PaginationService } from 'src/shared/pagination/pagination.service';
+import { COST_CALCULATION_CONFIG } from 'src/utilities/constants/business-constants';
+import { PaginationDto } from 'src/utilities/pagination/dtos/pagination.dto';
+import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
+import { PaginationService } from 'src/utilities/pagination/pagination.service';
 
 
 

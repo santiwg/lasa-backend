@@ -4,7 +4,7 @@ import { StockMovement } from "../stock-movement/stock-movement.entity";
 import { RecipeItem } from "../product/recipe-item.entity";
 import { PurchaseDetail } from "../../purchases/purchase/purchase-detail.entity";
 import { Unit } from "../../shared/unit/unit.entity";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('ingredients')
 export class Ingredient extends BaseEntity {

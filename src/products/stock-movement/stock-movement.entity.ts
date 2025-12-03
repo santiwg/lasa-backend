@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColu
 import { Product } from "../product/product.entity";
 import { Ingredient } from "../ingredient/ingredient.entity";
 import { Exclude } from "class-transformer";
-import { DecimalTransformer } from "../../shared/transformers/decimal.transformer";
+import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
 
 @Entity('stock-movements')
 export class StockMovement extends BaseEntity {
