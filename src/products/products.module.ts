@@ -10,6 +10,7 @@ import { ProductionInstanceController } from './production-instance/production-i
 import { ProductionInstanceService } from './production-instance/production-instance.service';
 import { products_module_entities } from '../entities';
 import { SharedModule } from '../shared/shared.module';
+import { UtilitiesModule } from '../utilities/utilities.module';
 import { CifModule } from '../cif/cif.module';
 import { EmployeesModule } from '../employees/employees.module';
 
@@ -17,6 +18,7 @@ import { EmployeesModule } from '../employees/employees.module';
   imports: [
     TypeOrmModule.forFeature(products_module_entities),
     SharedModule,
+    UtilitiesModule,
     CifModule,
     EmployeesModule
   ],

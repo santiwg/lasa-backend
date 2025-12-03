@@ -6,11 +6,13 @@ import { CostTypeController } from './cost-type/cost-type.controller';
 import { CostTypeService } from './cost-type/cost-type.service';
 import { cif_module_entities } from '../entities';
 import { SharedModule } from '../shared/shared.module';
+import { UtilitiesModule } from '../utilities/utilities.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature(cif_module_entities),
-    SharedModule
+    SharedModule,
+    UtilitiesModule
   ],
   controllers: [CifController, CostTypeController],
   providers: [CifService, CostTypeService],

@@ -110,7 +110,7 @@ export class ProductService {
         if (!product) {
             throw new NotFoundException(`Product with ID ${id} not found`);
         }
-        const newStock = product.currentStock + quantityChange;
+        const newStock = product.currentStock + quantityChange; //este paso es para validar que no baje de 0, pero la actualizacion se hace con increment
         if (newStock < 0) {
             throw new BadRequestException(`Stock cannot be negative. Current stock: ${product.currentStock}, attempted change: ${quantityChange}`);
         }
