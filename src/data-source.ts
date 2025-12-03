@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 
 // Cargar variables de entorno para migraciones
-dotenv.config({ path: '.env.db' });
+dotenv.config({ path: '.env' });
 
 // Configuración de DataSource para migraciones TypeORM CLI
 const AppDataSource = new DataSource({
