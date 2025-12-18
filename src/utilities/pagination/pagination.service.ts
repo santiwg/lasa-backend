@@ -49,4 +49,14 @@ export class PaginationService {
             hasMore
         };
     }
+    manualPagination<T>( collection: T[],pagination: PaginationDto): T[] {
+        if (pagination.page !== null) {
+            const offset=(pagination.page-1)*pagination.quantity;
+            return collection.slice(offset,offset+pagination.quantity)
+        }
+        else{
+            return collection;
+        }
+        
+    }
 }

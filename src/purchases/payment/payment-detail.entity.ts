@@ -11,9 +11,9 @@ export class PaymentDetail extends BaseEntity {
     @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     amount: number;
 
-    @ManyToOne(() => Payment, payment => payment.details)
+    @ManyToOne(() => Payment, payment => payment.details, { onDelete: 'CASCADE', eager: true })
     payment: Payment;
 
-    @ManyToOne(() => Purchase, purchase => purchase.paymentDetails)
+    @ManyToOne(() => Purchase, purchase => purchase.paymentDetails, { onDelete: 'CASCADE', eager: true })
     purchase: Purchase;
 }

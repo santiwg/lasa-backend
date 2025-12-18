@@ -1,8 +1,9 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { HasOneOf } from '../../../utilities/validators/has-one-of.validator';
 
-
-
+// Regla de negocio/validación: el proveedor debe tener al menos uno entre CUIT o CUIL.
+// Se aplica a nivel clase para que no quede "saltado" por @IsOptional cuando la propiedad vale null.
+@HasOneOf(['cuit', 'cuil'])
 export class NewSupplierDto {
 
     @IsString()
@@ -27,7 +28,6 @@ export class NewSupplierDto {
 
     @IsString()
     @IsOptional()
-    @HasOneOf(['cuit','cuil'])
     cuil: string | null;
 
 }

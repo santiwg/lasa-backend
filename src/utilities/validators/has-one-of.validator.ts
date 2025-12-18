@@ -17,23 +17,33 @@ export class HasOneOfConstraint implements ValidatorConstraintInterface {
    * @param args - argumentos de validación que incluyen los nombres de las propiedades a verificar
    * @returns true si al menos una propiedad tiene un valor válido, false en caso contrario
    */
-  validate(value: any, args: ValidationArguments): boolean {
-    // Extraer los nombres de propiedades desde los argumentos del decorador
-    const propertyNames = args.constraints;
+  validate(_value: unknown, args: ValidationArguments): boolean {
+    const propertyNames = args.constraints as string[];
+    // `args.object` es el DTO completo (no el valor de una propiedad puntual).
+    // Esto es clave porque `@HasOneOf(['cuit','cuil'])` se aplica en `cuil`,
+    // pero la regla depende de ambas propiedades.
+    const obj = args.object as Record<string, unknown> | undefined;
 
-    // Iterar sobre cada nombre de propiedad especificado
-    for (const propertyName of propertyNames) {
-      // Obtener el valor de la propiedad del objeto
-      const propertyValue = value[propertyName];
-
-      // Verificar si el valor es válido (no null, no undefined, no string vacío)
-      if (propertyValue !== null && propertyValue !== undefined && propertyValue !== '') {
-        // Si encontramos al menos un valor válido, la validación pasa
-        return true;
-      }
+    if (!obj) {
+      return false;
     }
 
-    // Si llegamos aquí, ninguna de las propiedades tiene un valor válido
+    for (const propertyName of propertyNames) {
+      const propertyValue = obj[propertyName];
+      if (propertyValue === null || propertyValue === undefined) {
+        continue;
+      }
+
+      if (typeof propertyValue === 'string') {
+        if (propertyValue.trim().length > 0) {
+          return true;
+        }
+        continue;
+      }
+
+      return true;
+    }
+
     return false;
   }
 
@@ -78,12 +88,24 @@ export function HasOneOf(
   propertyNames: string[],
   validationOptions?: ValidationOptions,
 ) {
-  return function (target: any, propertyName: string) {
-    // Paso 1: Registrar el decorador con class-validator
-    // target.constructor es la clase (NewSupplierDto)
+  // Soporta uso como:
+  // - Decorador de clase: @HasOneOf(['cuit','cuil'])
+  // - Decorador de propiedad (legacy): @HasOneOf(['cuit','cuil']) sobre 'cuil'
+  return function (target: any, propertyName?: string) {
+    // Si se usa a nivel clase, TS no provee propertyName.
+    // Registramos un "pseudo-campo" para que class-validator ejecute el constraint.
+    const isClassDecorator = typeof propertyName !== 'string';
+
+    // - Si es decorador de clase, `target` ya es el constructor.
+    // - Si es decorador de propiedad, `target` es el prototype y debemos usar `target.constructor`.
+    const ctor: Function =
+      typeof target === 'function' ? (target as Function) : (target.constructor as Function);
+
+    const decoratorProperty = isClassDecorator ? 'hasOneOf' : propertyName;
+
     registerDecorator({
-      target: target.constructor,
-      propertyName: propertyName, // 'cuil' - donde se aplicó el decorador
+      target: ctor,
+      propertyName: decoratorProperty!,
       options: validationOptions,
       constraints: propertyNames, // ['cuit', 'cuil'] - propiedades a validar
       validator: HasOneOfConstraint, // clase que ejecuta la validación

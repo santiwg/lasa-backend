@@ -8,7 +8,7 @@ export class PurchaseDetail extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Purchase, purchase => purchase.details)
+    @ManyToOne(() => Purchase, purchase => purchase.details,{ onDelete: 'CASCADE' })
     purchase: Purchase;
 
     @ManyToOne(() => Ingredient, ingredient => ingredient.purchaseDetails)

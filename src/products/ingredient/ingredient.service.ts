@@ -13,8 +13,9 @@ export class IngredientService {
     constructor(@InjectRepository(Ingredient) private repository: Repository<Ingredient>,
         private readonly unitService: UnitService, private readonly paginationService: PaginationService) { }
 
-    async findById(id: number): Promise<Ingredient> {
-        const ingredient = await this.repository.findOne({
+    async findById(id: number, manager?: EntityManager): Promise<Ingredient> {
+        const repo = manager ? manager.getRepository(Ingredient) : this.repository;
+        const ingredient = await repo.findOne({
             where: { id }
         });
 
@@ -89,4 +90,9 @@ export class IngredientService {
         await this.repository.softRemove(ingredient);
         return { message: `Ingredient with ID ${id} deleted successfully` };
     }
-}
+    async updateIngredientPrice(id: number, newPrice: number, manager?: EntityManager): Promise<void> {
+        const repo = manager ? manager.getRepository(Ingredient) : this.repository;
+        await repo.update({ id }, { unitPrice: newPrice });
+    }
+    
+    }
