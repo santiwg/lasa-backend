@@ -18,7 +18,7 @@ export class SupplierController {
     }
 
     @Get('/with-balance')
-    async findAllWithBalance(@Query() pagination: PaginationDto):Promise<PaginatedResponseDto<SupplierWithBalance>> {
+    async findAllWithBalance(@Query() pagination: PaginationWithSortingDto):Promise<PaginatedResponseDto<SupplierWithBalance>> {
         return await this.supplierService.findAllWithBalance(pagination);
     }
     
