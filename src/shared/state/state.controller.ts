@@ -7,14 +7,15 @@ export class StateController {
 
     constructor(private readonly stateService: StateService) { }
 
-    @Get(':name')
-    async findByName(@Param('name') name: string): Promise<State> {
-        return await this.stateService.findByName(name);
+    @Get('/find-by-scope/:scope')
+    async findByScope(@Param('scope') scope: string): Promise<State[]> {
+        return await this.stateService.findByScope(scope);
     }
 
     @Get()
     async findAll(): Promise<State[]> {
         return await this.stateService.findAll();
     }
+    
 
 }

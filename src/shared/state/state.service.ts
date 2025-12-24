@@ -7,6 +7,14 @@ export class StateService {
 
     constructor(@InjectRepository(State) private stateRepository) { }
 
+    async findById(id: number): Promise<State> {
+        const state = await this.stateRepository.findOne({ where: { id } });
+        if (!state) {
+            throw new NotFoundException(`State with ID ${id} not found`);
+        }
+        return state;
+    }
+
     async findByName(name: string): Promise<State> {
         const state = await this.stateRepository.findOne({ where: { name } });
         if (!state) {
@@ -22,6 +30,9 @@ export class StateService {
     }
     findAll():Promise<State[]> {
         return this.stateRepository.find();
+    }
+    findByScope(scope: string): Promise<State[]> {
+        return this.stateRepository.find({ where: { scope } });
     }
 
 }

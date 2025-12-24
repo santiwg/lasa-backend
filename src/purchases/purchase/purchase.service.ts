@@ -44,9 +44,17 @@ export class PurchaseService {
                     case '':
                         break;
                     case 'supplier':
+                        if (filterObjectId === undefined || filterObjectId === null) {
+                            throw new BadRequestException('filterObjectId is required when filtering by supplier');
+                        }
+                        await this.supplierService.findById(filterObjectId); //Para que de error si no existe
                         options.where = { supplier: { id: filterObjectId } };
                         break;
                     case 'state':
+                        if (filterObjectId === undefined || filterObjectId === null) {
+                            throw new BadRequestException('filterObjectId is required when filtering by state');
+                        }
+                        await this.stateService.findById(filterObjectId);//Para que de error si no existe
                         options.where = { state: { id: filterObjectId } };
                         break;
                     default:

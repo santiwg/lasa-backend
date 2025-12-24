@@ -5,6 +5,7 @@ import { NewSupplierDto } from './dtos/newSupplier.dto';
 import { PaginationWithSortingDto } from 'src/utilities/pagination/dtos/pagination-with-sorting.dto';
 import { SupplierWithBalance } from './dtos/supplierWithBalance.interface';
 import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
+import { Supplier } from './supplier.entity';
 
 @Controller('suppliers')
 export class SupplierController {
@@ -12,8 +13,13 @@ export class SupplierController {
     constructor(private readonly supplierService:SupplierService) { }
 
     @Get()
-    async findAll(@Query() pagination: PaginationWithSortingDto):Promise<PaginatedResponseDto<SupplierWithBalance>> {
+    async findAll(@Query() pagination: PaginationWithSortingDto):Promise<PaginatedResponseDto<Supplier>> {
         return await this.supplierService.findAll(pagination);
+    }
+
+    @Get('/with-balance')
+    async findAllWithBalance(@Query() pagination: PaginationDto):Promise<PaginatedResponseDto<SupplierWithBalance>> {
+        return await this.supplierService.findAllWithBalance(pagination);
     }
     
     @Post()

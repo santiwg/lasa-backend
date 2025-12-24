@@ -23,6 +23,7 @@ import { EmployeesModule } from '../employees/employees.module';
     EmployeesModule
   ],
   controllers: [ProductController, IngredientController, StockMovementController, ProductionInstanceController],
-  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService]
+  providers: [ProductService, IngredientService, StockMovementService, ProductionInstanceService],
+  exports: [ProductService, IngredientService, StockMovementService, ProductionInstanceService]
 })
 export class ProductsModule {}

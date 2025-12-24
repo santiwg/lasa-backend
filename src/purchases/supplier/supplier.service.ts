@@ -22,19 +22,27 @@ export class SupplierService {
         @InjectRepository(Supplier) private repository: Repository<Supplier>
     ) { }
 
-    async findAll(paginationWithSortingDto: PaginationWithSortingDto): Promise<PaginatedResponseDto<SupplierWithBalance>> {
+    async findAllWithBalance(paginationWithSortingDto: PaginationWithSortingDto): Promise<PaginatedResponseDto<SupplierWithBalance>> {
         const { page, quantity, sort, order } = paginationWithSortingDto;
         const pagination: PaginationDto = { page, quantity };
         switch (sort) {
             case '':
-                return this.findAllUnsorted(pagination, order);
+                return this.findAllSortedByBusinessName(pagination, order);
+            case 'businessName':
+                return this.findAllSortedByBusinessName(pagination, order);
             case 'balance':
                 return this.findAllSortedByBalance(pagination, order);
             default:
                 throw new BadRequestException('Invalid sort parameter');
         }
     }
-    async findAllUnsorted(pagination: PaginationDto, order: 'asc' | 'desc' = 'desc'): Promise<PaginatedResponseDto<SupplierWithBalance>> {
+    async findAll(pagination: PaginationDto): Promise<PaginatedResponseDto<Supplier>> {
+        const options = this.paginationService.getPaginationOptions(pagination, {order:{ businessName: 'ASC' }});
+        const [data, total] = await this.repository.findAndCount(options);
+        return this.paginationService.createPaginatedResponse(data, total, pagination);
+    }
+    async findAllSortedByBusinessName(pagination: PaginationDto, order: 'asc' | 'desc' = 'asc'): Promise<PaginatedResponseDto<SupplierWithBalance>> {
+        //Al filtrar por nombre se hace de forma ascendente por lo general
         const options = this.paginationService.getPaginationOptions(pagination, {
             order: { businessName: order }
         });
@@ -48,7 +56,8 @@ export class SupplierService {
         return this.paginationService.createPaginatedResponse(supplierswithBalance, total, pagination);
 
     }
-    async findAllSortedByBalance(pagination: PaginationDto, order: 'asc' | 'desc' = 'desc'): Promise<PaginatedResponseDto<SupplierWithBalance>> {
+    async findAllSortedByBalance(pagination: PaginationDto, order: 'asc' | 'desc' = 'asc'): Promise<PaginatedResponseDto<SupplierWithBalance>> {
+        //Orden ascendente por defecto para que aparezcan primero los valores negativos ( a los que más se le debe)
         const [data, total] = await this.repository.findAndCount();
 
         const supplierswithBalance: SupplierWithBalance[] = [];
