@@ -106,8 +106,10 @@ export class PurchaseService {
         const repo = manager ? manager.getRepository(Purchase) : this.repository;
         return repo.find({
             where: [{
-                supplier: { id: supplierId }, state: { name: 'Pending' }
-            },{ supplier: { id: supplierId }, state: { name: 'Partially Payed' } }]
+                supplier: { id: supplierId }, state: { name: 'Pendiente' }
+            },{ supplier: { id: supplierId }, state: { name: 'Parcialmente pagado' } }],
+        relations: ['details', 'paymentDetails', 'state'],
+        order: { dateTime: 'ASC', id: 'ASC' }, // FIFO
         });
     }
     async updateIngredientStockAndPrice(details: Partial<PurchaseDetail>[], manager?: EntityManager): Promise<void> {
@@ -120,14 +122,14 @@ export class PurchaseService {
         
         //Si el monto pagado es igual o mayor al total queda pagado
         if (paidAmount && paidAmount>= this.getTotalFromDetails(details)) {
-            return this.stateService.findByName('Payed');
+            return this.stateService.findByName('Pagado');
         }
         //Si se pagó un monto pero no llega al total (no entró al condicional anterior), queda parcialmente pagado
         else if (paidAmount && paidAmount>0){
-            return this.stateService.findByName('Partially Payed');
+            return this.stateService.findByName('Parcialmente pagado');
         }
         //Si no se pagó nada queda pendiente
-        return this.stateService.findByName('Pending');
+        return this.stateService.findByName('Pendiente');
     }
     getTotalFromDetails(details:Partial<PurchaseDetail>[]):number {
         return details.reduce((total, detail) => total + detail.historicalUnitPrice!*detail.quantity!, 0);
@@ -198,13 +200,13 @@ export class PurchaseService {
                 //si ya se encuentra en este estado no hace falta cambiarlo
                 return purchaseWithPayments 
             }
-            const pendingState = await this.stateService.findByName('Pending');
+            const pendingState = await this.stateService.findByName('Pendiente');
             purchaseWithPayments.state = pendingState;
             return repo.save(purchaseWithPayments);
         }
         else if (totalPaidAmount>=totalPurchaseAmount){
             //El estado debe ser "Pagado"
-            const payedState = await this.stateService.findByName('Payed');
+            const payedState = await this.stateService.findByName('Pagado');
             purchaseWithPayments.state = payedState;
             return repo.save(purchaseWithPayments);
         }
@@ -214,7 +216,7 @@ export class PurchaseService {
                 //si ya se encuentra en este estado no hace falta cambiarlo
                 return purchaseWithPayments 
             }
-            const partiallyPayedState = await this.stateService.findByName('Partially Payed');
+            const partiallyPayedState = await this.stateService.findByName('Parcialmente pagado');
             purchaseWithPayments.state = partiallyPayedState;
             return repo.save(purchaseWithPayments);
         }

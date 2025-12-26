@@ -23,10 +23,10 @@ export class StateService {
         return state;
     }
     isPartiallyPayed(state: State): boolean {
-        return state.name === 'Partially Payed';
+        return state.name === 'Parcialmente pagado';
     }
     isPending(state: State): boolean {
-        return state.name === 'Pending';
+        return state.name === 'Pendiente';
     }
     findAll():Promise<State[]> {
         return this.stateRepository.find();

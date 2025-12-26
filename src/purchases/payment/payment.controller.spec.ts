@@ -55,9 +55,9 @@ describe('PaymentController (integration)', () => {
 
   const seedStates = async () => {
     await stateRepository.save([
-      stateRepository.create({ scope: 'purchases', name: 'Pending' }),
-      stateRepository.create({ scope: 'purchases', name: 'Partially Payed' }),
-      stateRepository.create({ scope: 'purchases', name: 'Payed' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pendiente' }),
+      stateRepository.create({ scope: 'Compra', name: 'Parcialmente pagado' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pagado' }),
     ]);
   };
 
@@ -96,7 +96,7 @@ describe('PaymentController (integration)', () => {
 
   const createPurchaseWithTotal = async (args: {
     supplier: Supplier;
-    stateName: 'Pending' | 'Partially Payed' | 'Payed';
+    stateName: 'Pendiente' | 'Parcialmente pagado' | 'Pagado';
     ingredient: Ingredient;
     total: number;
   }) => {
@@ -242,7 +242,7 @@ describe('PaymentController (integration)', () => {
       await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 100,
       });
 
@@ -308,13 +308,13 @@ describe('PaymentController (integration)', () => {
       await createPurchaseWithTotal({
         supplier: supplier1,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
       await createPurchaseWithTotal({
         supplier: supplier2,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
 
@@ -346,13 +346,13 @@ describe('PaymentController (integration)', () => {
       await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
       await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
 
@@ -392,8 +392,8 @@ describe('PaymentController (integration)', () => {
       const paymentMethod = await paymentMethodRepository.findOneByOrFail({ name: 'Cash' });
       const { ingredient } = await seedUnitAndIngredient();
 
-      await createPurchaseWithTotal({ supplier: supplier1, ingredient, stateName: 'Pending', total: 10 });
-      await createPurchaseWithTotal({ supplier: supplier2, ingredient, stateName: 'Pending', total: 10 });
+      await createPurchaseWithTotal({ supplier: supplier1, ingredient, stateName: 'Pendiente', total: 10 });
+      await createPurchaseWithTotal({ supplier: supplier2, ingredient, stateName: 'Pendiente', total: 10 });
 
       await request(app.getHttpServer())
         .post('/payments')
@@ -426,7 +426,7 @@ describe('PaymentController (integration)', () => {
       const purchase = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 100,
       });
 
@@ -443,7 +443,7 @@ describe('PaymentController (integration)', () => {
         where: { id: purchase.id },
         relations: ['state', 'paymentDetails'],
       });
-      expect(updated?.state.name).toBe('Partially Payed');
+      expect(updated?.state.name).toBe('Parcialmente pagado');
     });
 
     it('POST /payments: creates multiple details and leaves unassignedAmount when paidAmount exceeds owed', async () => {
@@ -456,13 +456,13 @@ describe('PaymentController (integration)', () => {
       const purchase1 = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 50,
       });
       const purchase2 = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 60,
       });
 
@@ -482,8 +482,8 @@ describe('PaymentController (integration)', () => {
         purchaseRepository.findOne({ where: { id: purchase1.id }, relations: ['state'] }),
         purchaseRepository.findOne({ where: { id: purchase2.id }, relations: ['state'] }),
       ]);
-      expect(u1?.state.name).toBe('Payed');
-      expect(u2?.state.name).toBe('Payed');
+      expect(u1?.state.name).toBe('Pagado');
+      expect(u2?.state.name).toBe('Pagado');
     });
 
     it('POST /payments: only uses Pending and Partially Payed purchases', async () => {
@@ -496,19 +496,19 @@ describe('PaymentController (integration)', () => {
       const pendingPurchase = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
       const partiallyPayedPurchase = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Partially Payed',
+        stateName: 'Parcialmente pagado',
         total: 10,
       });
       const alreadyPayedPurchase = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Payed',
+        stateName: 'Pagado',
         total: 10,
       });
 
@@ -531,7 +531,7 @@ describe('PaymentController (integration)', () => {
         where: { id: alreadyPayedPurchase.id },
         relations: ['paymentDetails', 'state'],
       });
-      expect(payedAfter?.state.name).toBe('Payed');
+      expect(payedAfter?.state.name).toBe('Pagado');
       expect(payedAfter?.paymentDetails?.length ?? 0).toBe(0);
     });
 
@@ -539,7 +539,7 @@ describe('PaymentController (integration)', () => {
       const supplier = await seedSupplier();
       const paymentMethod = await paymentMethodRepository.findOneByOrFail({ name: 'Cash' });
       const { ingredient } = await seedUnitAndIngredient();
-      await createPurchaseWithTotal({ supplier, ingredient, stateName: 'Pending', total: 10 });
+      await createPurchaseWithTotal({ supplier, ingredient, stateName: 'Pendiente', total: 10 });
 
       const created = await request(app.getHttpServer())
         .post('/payments')
@@ -562,7 +562,7 @@ describe('PaymentController (integration)', () => {
       const purchase = await createPurchaseWithTotal({
         supplier,
         ingredient,
-        stateName: 'Pending',
+        stateName: 'Pendiente',
         total: 10,
       });
 
@@ -575,7 +575,7 @@ describe('PaymentController (integration)', () => {
         where: { id: purchase.id },
         relations: ['state'],
       });
-      expect(paidPurchase?.state.name).toBe('Payed');
+      expect(paidPurchase?.state.name).toBe('Pagado');
 
       await request(app.getHttpServer())
         .delete(`/payments/${created.body.id}`)
@@ -586,7 +586,7 @@ describe('PaymentController (integration)', () => {
         where: { id: purchase.id },
         relations: ['state'],
       });
-      expect(updated?.state.name).toBe('Pending');
+      expect(updated?.state.name).toBe('Pendiente');
     });
   });
 });

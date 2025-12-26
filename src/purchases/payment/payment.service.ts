@@ -41,8 +41,9 @@ export class PaymentService {
         const paymentMethod = await this.paymentMethodService.findById(paymentMethodId);
         const details = this.createInitialPaymentDetailsForPurchase(purchase, paidAmount);
         const paymentRepository = manager ? manager.getRepository(Payment) : this.repository;
+        const unassignedAmount = paidAmount - this.getTotalDetailsAmount(details);
         const newPayment = paymentRepository.create({
-            dateTime: date || new Date(), supplier, paymentMethod, details
+            dateTime: date || new Date(), supplier, paymentMethod, details, unassignedAmount
         });
         return paymentRepository.save(newPayment);
     }
@@ -88,7 +89,14 @@ export class PaymentService {
         }
     }
     createInitialPaymentDetailsForPurchase(purchase: Purchase, paidAmount: number): Partial<PaymentDetail>[] {
-        return [{ amount: paidAmount, purchase: purchase }];
+        const purchaseTotal = this.purchaseService.getTotalPurchaseAmount(purchase);
+        if (paidAmount <= 0) {
+            return [];
+        } else if (paidAmount >= purchaseTotal) {
+            return [{ amount: purchaseTotal, purchase: purchase }];
+        } else {
+            return [{ amount: paidAmount, purchase: purchase }];
+        }
     }
     async findAll(paginationWithFiltering: PaginationWithFilteringDto): Promise<PaginatedResponseDto<Payment>> {
         const { page, quantity, filterType, filterObjectId } = paginationWithFiltering;
@@ -152,7 +160,16 @@ export class PaymentService {
         while (remainingAmount > 0 && unpaidPurchases.length > 0) {
             const purchase = unpaidPurchases.shift()!; //Removes the first element from an array and returns it. If the array is empty, undefined is returned and the array is not modified.
             const totalPurchaseAmount = this.purchaseService.getTotalPurchaseAmount(purchase);
-            const detailAmount = Math.min(remainingAmount, totalPurchaseAmount); //Returns the smaller of a set of supplied numeric expressions.
+            const alreadyPaid =
+                this.purchaseService.getTotalPaidAmountForPurchase(purchase);
+            const remainingForPurchase = totalPurchaseAmount - alreadyPaid;
+
+            // Puede haber estado desactualizado el estado; por seguridad saltamos si ya está totalmente paga
+            if (remainingForPurchase <= 0) {
+                continue;
+            }
+
+            const detailAmount = Math.min(remainingAmount, remainingForPurchase);
             details.push({ amount: detailAmount, purchase });
             remainingAmount -= detailAmount;
         }
@@ -163,11 +180,17 @@ export class PaymentService {
     async useUnassignedAmountForSupplier(supplierId: number, purchase: Purchase, manager?: EntityManager): Promise<void> {
         const paymentRepository = manager ? manager.getRepository(Payment) : this.repository;
         const paymentDetailRepository = manager ? manager.getRepository(PaymentDetail) : this.paymentDetailRepository;
+        const amountToPay =
+            this.purchaseService.getTotalPurchaseAmount(purchase) -
+            this.purchaseService.getTotalPaidAmountForPurchase(purchase);
+
+        if (amountToPay <= 0) {
+            return;
+        }
         //obtenga los pagos con monto no asignado para el proveedor y el total restante a pagar por la venta
         const paymentsWithUnassignedAmount = await paymentRepository.find({
             where: { supplier: { id: supplierId }, unassignedAmount: MoreThan(0) }
         })
-        const amountToPay = this.purchaseService.getTotalPurchaseAmount(purchase) - this.purchaseService.getTotalPaidAmountForPurchase(purchase);
         let remainingAmount = amountToPay;
         while (remainingAmount > 0 && paymentsWithUnassignedAmount.length > 0) {
             const payment = paymentsWithUnassignedAmount.shift()!;
@@ -212,7 +235,7 @@ export class PaymentService {
             await manager.remove(payment); // DB elimina payment-details por CASCADE (si el FK existe)
 
             // Re-cargar compras ya sin esos payment-details y recién ahí recalcular estado
-            
+
             for (const purchaseId of relatedPurchaseIds) {
                 const freshPurchase = await this.purchaseService.findById(purchaseId, manager);
                 if (freshPurchase) {

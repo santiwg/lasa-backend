@@ -61,9 +61,9 @@ describe('PurchaseController (integration)', () => {
   const seedStates = async () => {
     // Estados mínimos para la lógica de compras/pagos.
     await stateRepository.save([
-      stateRepository.create({ scope: 'purchases', name: 'Pending' }),
-      stateRepository.create({ scope: 'purchases', name: 'Partially Payed' }),
-      stateRepository.create({ scope: 'purchases', name: 'Payed' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pendiente' }),
+      stateRepository.create({ scope: 'Compra', name: 'Parcialmente pagado' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pagado' }),
     ]);
   };
 
@@ -382,7 +382,7 @@ describe('PurchaseController (integration)', () => {
 
       const partiallyPayed = await stateRepository.findOneByOrFail({
         scope: 'purchases',
-        name: 'Partially Payed',
+        name: 'Parcialmente pagado',
       });
 
       const res = await request(app.getHttpServer())
@@ -427,7 +427,7 @@ describe('PurchaseController (integration)', () => {
       expect(Number(updatedIngredient.unitPrice)).toBe(15);
     });
 
-    it('POST /purchases: creates initial payment and sets state (Partially Payed)', async () => {
+    it('POST /purchases: creates initial payment and sets state (Parcialmente pagado)', async () => {
       const supplier = await seedSupplier();
       const { ingredient } = await seedUnitAndIngredient();
       const paymentMethod = await paymentMethodRepository.findOneByOrFail({
@@ -451,12 +451,12 @@ describe('PurchaseController (integration)', () => {
         relations: ['state', 'paymentDetails', 'paymentDetails.payment'],
       });
 
-      expect(purchase?.state.name).toBe('Partially Payed');
+      expect(purchase?.state.name).toBe('Parcialmente pagado');
       expect(purchase?.paymentDetails?.length ?? 0).toBe(1);
       expect(Number(purchase?.paymentDetails?.[0]?.amount)).toBe(5);
     });
 
-    it('POST /purchases: sets state to Payed when paidAmount covers total', async () => {
+    it('POST /purchases: sets state to Pagado when paidAmount covers total', async () => {
       const supplier = await seedSupplier();
       const { ingredient } = await seedUnitAndIngredient();
       const paymentMethod = await paymentMethodRepository.findOneByOrFail({
@@ -481,10 +481,10 @@ describe('PurchaseController (integration)', () => {
       });
       expect(purchase?.paymentDetails?.length ?? 0).toBeGreaterThan(0);
 
-      expect(purchase?.state.name).toBe('Payed');
+      expect(purchase?.state.name).toBe('Pagado');
     });
 
-    it('POST /purchases: when no paidAmount, keeps state Pending and creates no payment', async () => {
+    it('POST /purchases: when no paidAmount, keeps state Pendiente and creates no payment', async () => {
       const supplier = await seedSupplier();
       const { ingredient } = await seedUnitAndIngredient();
 
@@ -503,7 +503,7 @@ describe('PurchaseController (integration)', () => {
         relations: ['state', 'paymentDetails'],
       });
 
-      expect(purchase?.state.name).toBe('Pending');
+      expect(purchase?.state.name).toBe('Pendiente');
       expect(purchase?.paymentDetails?.length ?? 0).toBe(0);
 
       // No debería haberse creado ningún pago/relación.
@@ -546,7 +546,7 @@ describe('PurchaseController (integration)', () => {
       expect(purchase?.paymentDetails?.length ?? 0).toBe(1);
       expect(Number(purchase?.paymentDetails?.[0]?.amount)).toBe(7);
       expect(purchase?.paymentDetails?.[0]?.payment?.id).toBe(payment.id);
-      expect(purchase?.state.name).toBe('Partially Payed');
+      expect(purchase?.state.name).toBe('Parcialmente pagado');
 
       const updatedPayment = await paymentRepository.findOneByOrFail({
         id: payment.id,

@@ -62,9 +62,9 @@ describe('SupplierController (integration)', () => {
   const seedStates = async () => {
     // Estados mínimos usados por Purchases/Payments (para balance y para evitar fallos en servicios).
     await stateRepository.save([
-      stateRepository.create({ scope: 'purchases', name: 'Pending' }),
-      stateRepository.create({ scope: 'purchases', name: 'Partially Payed' }),
-      stateRepository.create({ scope: 'purchases', name: 'Payed' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pendiente' }),
+      stateRepository.create({ scope: 'Compra', name: 'Parcialmente pagado' }),
+      stateRepository.create({ scope: 'Compra', name: 'Pagado' }),
     ]);
   };
 
@@ -117,8 +117,8 @@ describe('SupplierController (integration)', () => {
     total: number;
   }) => {
     const pending = await stateRepository.findOneByOrFail({
-      scope: 'purchases',
-      name: 'Pending',
+      scope: 'Compra',
+      name: 'Pendiente',
     });
 
     const detail = new PurchaseDetail();
