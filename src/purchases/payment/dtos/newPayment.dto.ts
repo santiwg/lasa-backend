@@ -1,6 +1,9 @@
+import { Type } from "class-transformer";
 import {  IsDate, IsNumber, IsOptional, IsPositive } from "class-validator";
 
 export class NewPaymentDto {  
+        
+        @Type(() => Date)
         @IsDate()
         @IsOptional()    
         dateTime: Date|null;

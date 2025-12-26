@@ -12,6 +12,7 @@ import { PurchasesModule } from './purchases/purchases.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UtilitiesModule } from './utilities/utilities.module';
+import { DevSeederModule } from './dev-seeder/dev-seeder.module';
 
 @Module({
   imports: [
@@ -30,7 +31,17 @@ import { UtilitiesModule } from './utilities/utilities.module';
       }),
       inject: [ConfigService],
     }),
-    SharedModule, SalesModule, CifModule, PurchasesModule, ProductsModule, EmployeesModule, BakeryModule, AuthModule,UtilitiesModule],
+    SharedModule,
+    SalesModule,
+    CifModule,
+    PurchasesModule,
+    ProductsModule,
+    EmployeesModule,
+    BakeryModule,
+    AuthModule,
+    UtilitiesModule,
+    DevSeederModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

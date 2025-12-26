@@ -274,7 +274,7 @@ describe('SupplierController (integration)', () => {
         email: 'proveedora@test.com',
       });
       expect(created).toHaveProperty('id');
-      expect(Number(created.balance)).toBe(0);
+      expect(Number(created.balancePayable)).toBe(0);
     });
 
     it('GET /suppliers: returns all suppliers (no sorting)', async () => {
@@ -290,7 +290,7 @@ describe('SupplierController (integration)', () => {
 
       expect(Array.isArray(res.body.data)).toBe(true);
       expect(res.body.data.length).toBe(3);
-      expect(res.body.data[0]).toHaveProperty('balance');
+      expect(res.body.data[0]).toHaveProperty('balancePayable');
 
       // evalúa orden
       const names = res.body.data.map((s: any) => s.businessName);
@@ -362,9 +362,9 @@ describe('SupplierController (integration)', () => {
 
       expect(res.body.data.length).toBe(2);
       expect(res.body.data[0].businessName).toBe('Proveedor B');
-      expect(Number(res.body.data[0].balance)).toBe(80);
+      expect(Number(res.body.data[0].balancePayable)).toBe(80);
       expect(res.body.data[1].businessName).toBe('Proveedor A');
-      expect(Number(res.body.data[1].balance)).toBe(50);
+      expect(Number(res.body.data[1].balancePayable)).toBe(50);
     });
 
     it('PUT /suppliers/:id: updates supplier', async () => {

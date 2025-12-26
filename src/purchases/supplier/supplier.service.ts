@@ -73,9 +73,9 @@ export class SupplierService {
     sortByBalance(suppliers: SupplierWithBalance[], order: 'asc' | 'desc' = 'desc'): SupplierWithBalance[] {
         suppliers.sort((a, b) => {
             if (order === 'asc') {
-                return a.balance - b.balance;
+                return a.balancePayable - b.balancePayable;
             } else { //order === 'desc'
-                return b.balance - a.balance;
+                return b.balancePayable - a.balancePayable;
             }
         });
         return suppliers;
@@ -87,7 +87,7 @@ export class SupplierService {
 
         return {
             ...supplier,
-            balance,
+            balancePayable: balance,
         };
     }
     getTotalPurchasesForSupplier(supplierId: number): Promise<number> {

@@ -20,6 +20,7 @@ export class NewPurchaseDto {
     @Type(() => NewPurchaseDetailDto)
     details: NewPurchaseDetailDto[];
     
+    @Type(() => Date)
     @IsDate()
     @IsOptional()
     dateTime: Date|null;
