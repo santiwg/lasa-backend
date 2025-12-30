@@ -90,5 +90,6 @@ export const shared_module_entities = [
   PaymentMethod,
   // Check,
   // CheckType,
-  Unit
+  Unit,
+  EmployeeRole
 ]; 

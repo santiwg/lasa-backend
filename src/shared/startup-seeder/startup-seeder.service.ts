@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { State } from '../state/state.entity';
 import { PaymentMethod } from '../payment-method/payment-method.entity';
 import { Unit } from '../unit/unit.entity';
+import { EmployeeRole } from '../../employees/employee-role/employee-role.entity';
+import { EMPLOYEE_ROLES } from '../../utilities/constants/business-constants';
 
 /**
  * Seeds "static" / predefined rows into the database at application startup.
@@ -31,6 +33,8 @@ export class StartupSeederService implements OnApplicationBootstrap {
     @InjectRepository(PaymentMethod)
     private readonly paymentMethodRepository: Repository<PaymentMethod>,
     @InjectRepository(Unit) private readonly unitRepository: Repository<Unit>,
+    @InjectRepository(EmployeeRole)
+    private readonly employeeRoleRepository: Repository<EmployeeRole>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -39,6 +43,7 @@ export class StartupSeederService implements OnApplicationBootstrap {
     await this.seedStates();
     await this.seedPaymentMethods();
     await this.seedUnits();
+    await this.seedEmployeeRoles();
   }
 
   private async seedStates(): Promise<void> {
@@ -89,6 +94,23 @@ export class StartupSeederService implements OnApplicationBootstrap {
       .insert()
       .into(PaymentMethod)
       .values(desiredPaymentMethods)
+      .orIgnore()
+      .execute();
+  }
+
+  private async seedEmployeeRoles(): Promise<void> {
+    const desiredRoles: Array<Pick<EmployeeRole, 'name' | 'description'>> = [
+      { name: EMPLOYEE_ROLES.DIRECT_LABOR, description: null },
+      { name: EMPLOYEE_ROLES.INDIRECT_LABOR, description: null },
+      { name: EMPLOYEE_ROLES.MANAGEMENT, description: null },
+      { name: EMPLOYEE_ROLES.SALES, description: null },
+    ];
+
+    await this.employeeRoleRepository
+      .createQueryBuilder()
+      .insert()
+      .into(EmployeeRole)
+      .values(desiredRoles)
       .orIgnore()
       .execute();
   }

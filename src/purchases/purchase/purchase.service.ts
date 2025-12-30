@@ -14,6 +14,7 @@ import { NewPurchaseDetailDto } from './dtos/newPurchaseDetail.dto';
 import { IngredientService } from 'src/products/ingredient/ingredient.service';
 import { State } from 'src/shared/state/state.entity';
 import { StateService } from 'src/shared/state/state.service';
+import { normalizeLocalDateTime } from 'src/utilities/dates/normalize-local-datetime';
 
 @Injectable()
 export class PurchaseService {
@@ -47,7 +48,7 @@ export class PurchaseService {
                         if (filterObjectId === undefined || filterObjectId === null) {
                             throw new BadRequestException('filterObjectId is required when filtering by supplier');
                         }
-                        await this.supplierService.findById(filterObjectId); //Para que de error si no existe
+                            await this.supplierService.findByIdWithoutRelations(filterObjectId); //Para que de error si no existe
                         options.where = { supplier: { id: filterObjectId } };
                         break;
                     case 'state':
@@ -68,15 +69,20 @@ export class PurchaseService {
 
     async create(purchase: NewPurchaseDto): Promise<Purchase> {
         const { supplierId, details, paidAmount, paymentMethodId, ...purchaseData } = purchase;
-        const supplier = await this.supplierService.findById(supplierId);
+        const supplier = await this.supplierService.findByIdWithoutRelations(supplierId);
 
         // Wrap the entire creation flow so purchase, payment, and stock changes commit atomically.
         return this.repository.manager.transaction(async (manager) => {
             const purchaseDetails = await this.createDetails(details, manager);
             const initialState = await this.defineInitialState(purchaseDetails, paidAmount ?? 0);
+
+            // Normalizamos la fecha para que se guarde sin el desfase horario (tratamos la hora recibida como local)
+            const requestedDate: Date | null | undefined = (purchaseData as any).dateTime ?? null;
+            const normalizedDate = normalizeLocalDateTime(requestedDate ?? undefined);
+
             const newPurchase = manager.create(Purchase, {
                 ...purchaseData,
-                dateTime: purchaseData.dateTime ?? new Date(),
+                dateTime: normalizedDate,
                 supplier,
                 state: initialState,
                 details: purchaseDetails
@@ -90,12 +96,25 @@ export class PurchaseService {
                     paidAmount,
                     paymentMethodId!,
                     supplier,
-                    purchaseData.dateTime ?? undefined,
+                    normalizedDate,
                     manager
                 );
             }
-            await this.paymentService.useUnassignedAmountForSupplier(supplierId, savedPurchase, manager);
-            await this.updateIngredientStockAndPrice(purchaseDetails, manager);
+            await Promise.all([
+                this.paymentService.useUnassignedAmountForSupplier(supplierId, savedPurchase, manager),
+                this.updateIngredientStockAndPrice(purchaseDetails, manager),
+            ]);
+
+            // useUnassignedAmountForSupplier puede haber actualizado el estado de la compra en DB.
+            // Refrescamos SOLO el state para devolver una respuesta consistente sin traer relaciones pesadas.
+            const refreshed = await manager.getRepository(Purchase).findOne({
+                where: { id: savedPurchase.id },
+                relations: ['state'],
+            });
+
+            if (refreshed?.state) {
+                savedPurchase.state = refreshed.state;
+            }
 
             //AGREGAR LA PARTE DE ASIGNAR EL SALDO A FAVOR SI ES QUE HAY
 
@@ -179,47 +198,44 @@ export class PurchaseService {
             return purchase;
         }
     }
-    async updatePurchaseState(purchase:Purchase, manager?: EntityManager):Promise<Purchase>{
+    async findForStateUpdate(id: number, manager?: EntityManager): Promise<Purchase> {
         const repo = manager ? manager.getRepository(Purchase) : this.repository;
-        const purchaseWithPayments = purchase.paymentDetails
-            ? purchase
-            : await repo.findOne({
-                  where: { id: purchase.id },
-                  relations: ['paymentDetails', 'state']
-              });
+        const purchase = await repo.findOne({
+            where: { id },
+            relations: ['details', 'paymentDetails'],
+        });
 
-        if (!purchaseWithPayments) {
-            throw new NotFoundException(`Purchase with ID ${purchase.id} not found`);
+        if (!purchase) {
+            throw new NotFoundException(`Purchase with ID ${id} not found`);
         }
 
-        //Obtengo el total de la compra y cuanto se ha pagado de ella.
-        const totalPurchaseAmount = this.getTotalPurchaseAmount(purchaseWithPayments);
-        const totalPaidAmount = this.getTotalPaidAmountForPurchase(purchaseWithPayments);
-        if (totalPaidAmount==0){
-            if (this.stateService.isPending(purchaseWithPayments.state)){
-                //si ya se encuentra en este estado no hace falta cambiarlo
-                return purchaseWithPayments 
-            }
-            const pendingState = await this.stateService.findByName('Pendiente');
-            purchaseWithPayments.state = pendingState;
-            return repo.save(purchaseWithPayments);
+        return purchase;
+    }
+    async updatePurchaseStateFromLoaded(purchase: Purchase, manager?: EntityManager): Promise<Purchase> {
+        const repo = manager ? manager.getRepository(Purchase) : this.repository;
+
+        const totalPurchaseAmount = this.getTotalPurchaseAmount(purchase);
+        const totalPaidAmount = this.getTotalPaidAmountForPurchase(purchase);
+
+        let nextStateName: 'Pendiente' | 'Parcialmente pagado' | 'Pagado';
+
+        if (totalPaidAmount <= 0) {
+            nextStateName = 'Pendiente';
+        } else if (totalPaidAmount >= totalPurchaseAmount) {
+            nextStateName = 'Pagado';
+        } else {
+            nextStateName = 'Parcialmente pagado';
         }
-        else if (totalPaidAmount>=totalPurchaseAmount){
-            //El estado debe ser "Pagado"
-            const payedState = await this.stateService.findByName('Pagado');
-            purchaseWithPayments.state = payedState;
-            return repo.save(purchaseWithPayments);
-        }
-        else{ //Entrará a este bloque si 0 < totalPaidAmount < totalPurchaseAmount
-            //El estado debe ser "Parcialmente pagado"
-            if (this.stateService.isPartiallyPayed(purchaseWithPayments.state)){
-                //si ya se encuentra en este estado no hace falta cambiarlo
-                return purchaseWithPayments 
-            }
-            const partiallyPayedState = await this.stateService.findByName('Parcialmente pagado');
-            purchaseWithPayments.state = partiallyPayedState;
-            return repo.save(purchaseWithPayments);
-        }
+
+        const nextState = await this.stateService.findByName(nextStateName);
+        purchase.state = nextState;
+
+        return repo.save(purchase);
+    }
+    async updatePurchaseState(purchaseOrId: Purchase | number, manager?: EntityManager): Promise<Purchase> {
+        const id = typeof purchaseOrId === 'number' ? purchaseOrId : purchaseOrId.id;
+        const purchase = await this.findForStateUpdate(id, manager);
+        return this.updatePurchaseStateFromLoaded(purchase, manager);
     }
     getTotalPaidAmountForPurchase(purchase:Purchase):number{
         return purchase.paymentDetails?.reduce((total, detail) => total + detail.amount, 0) ?? 0;

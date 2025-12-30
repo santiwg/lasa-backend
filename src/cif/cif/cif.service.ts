@@ -9,6 +9,7 @@ import { Product } from 'src/products/product/product.entity';
 import { PaginationService } from 'src/utilities/pagination/pagination.service';
 import { PaginatedResponseDto } from 'src/utilities/pagination/dtos/paginated-response.dto';
 import { PaginationDto } from 'src/utilities/pagination/dtos/pagination.dto';
+import { normalizeLocalDateTime } from 'src/utilities/dates/normalize-local-datetime';
 
 @Injectable()
 export class CifService {
@@ -23,8 +24,13 @@ export class CifService {
         const costType = await this.costTypeService.findById(costTypeId);
         const unit = await this.unitService.findById(unitId);
 
+        // Normalizamos la fecha para que se guarde sin el desfase horario (tratamos la hora recibida como local)
+        const requestedDate: Date | undefined = (cifData as any).dateTime;
+        const normalizedDate = requestedDate ? normalizeLocalDateTime(requestedDate) : undefined;
+
         const cif = this.repository.create({
             ...cifData,
+            ...(normalizedDate ? { dateTime: normalizedDate } : {}),
             costType,
             unit
         });

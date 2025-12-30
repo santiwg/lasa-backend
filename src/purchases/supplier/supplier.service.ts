@@ -124,4 +124,11 @@ export class SupplierService {
         }
         return supplier;
     }
+    async findByIdWithoutRelations(id: number): Promise<Supplier> {
+        const supplier = await this.repository.findOne({ where: { id } });
+        if (!supplier) {
+            throw new NotFoundException(`Supplier with ID ${id} not found`);
+        }
+        return supplier;
+    }
 }

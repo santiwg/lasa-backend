@@ -13,6 +13,7 @@ import { PaginationService } from 'src/utilities/pagination/pagination.service';
 import { NewPaymentDto } from './dtos/newPayment.dto';
 import { SupplierService } from '../supplier/supplier.service';
 import { PurchaseService } from '../purchase/purchase.service';
+import { normalizeLocalDateTime } from 'src/utilities/dates/normalize-local-datetime';
 
 @Injectable()
 export class PaymentService {
@@ -45,7 +46,9 @@ export class PaymentService {
         const newPayment = paymentRepository.create({
             dateTime: date || new Date(), supplier, paymentMethod, details, unassignedAmount
         });
-        return paymentRepository.save(newPayment);
+
+        return  await paymentRepository.save(newPayment);
+        
     }
 
     async deletePayments(payments: Payment[], manager?: EntityManager): Promise<void> {
@@ -124,7 +127,7 @@ export class PaymentService {
     async create(newPayment: NewPaymentDto): Promise<Payment> {
         //Extraigo propiedades del dto y obtengo entidades necesarias
         const { supplierId, paymentMethodId, paidAmount, ...paymentData } = newPayment;
-        const supplier = await this.supplierService.findById(supplierId);
+        const supplier = await this.supplierService.findByIdWithoutRelations(supplierId);
         const paymentMethod = await this.paymentMethodService.findById(paymentMethodId);
 
         return this.repository.manager.transaction(async (manager) => {
@@ -135,9 +138,14 @@ export class PaymentService {
 
             //Creo y guardo el pago
             const paymentRepository = manager.getRepository(Payment);
+
+            // Normalizamos la fecha para que se guarde sin el desfase horario (tratamos la hora recibida como local)
+            const requestedDate: Date | null | undefined = (paymentData as any).dateTime ?? null;
+            const normalizedDate = normalizeLocalDateTime(requestedDate ?? undefined);
+
             const createdPayment = paymentRepository.create({
                 ...paymentData,
-                ...(paymentData.dateTime ? { dateTime: paymentData.dateTime } : { dateTime: new Date() }),
+                dateTime: normalizedDate,
                 supplier,
                 paymentMethod,
                 details,
@@ -180,44 +188,106 @@ export class PaymentService {
     async useUnassignedAmountForSupplier(supplierId: number, purchase: Purchase, manager?: EntityManager): Promise<void> {
         const paymentRepository = manager ? manager.getRepository(Payment) : this.repository;
         const paymentDetailRepository = manager ? manager.getRepository(PaymentDetail) : this.paymentDetailRepository;
-        const amountToPay =
-            this.purchaseService.getTotalPurchaseAmount(purchase) -
-            this.purchaseService.getTotalPaidAmountForPurchase(purchase);
 
-        if (amountToPay <= 0) {
+        // Si no hay pagos con monto no asignado, no hay nada que hacer
+        const paymentsWithUnassignedAmount = await paymentRepository.find({
+            where: { supplier: { id: supplierId }, unassignedAmount: MoreThan(0) },
+            order: { dateTime: 'ASC', id: 'ASC' }
+        });
+
+        if (!paymentsWithUnassignedAmount.length) {
             return;
         }
-        //obtenga los pagos con monto no asignado para el proveedor y el total restante a pagar por la venta
-        const paymentsWithUnassignedAmount = await paymentRepository.find({
-            where: { supplier: { id: supplierId }, unassignedAmount: MoreThan(0) }
-        })
-        let remainingAmount = amountToPay;
-        while (remainingAmount > 0 && paymentsWithUnassignedAmount.length > 0) {
-            const payment = paymentsWithUnassignedAmount.shift()!;
-            const amountUsed = Math.min(remainingAmount, payment.unassignedAmount);
-            //Creo un nuevo detalle de pago
-            const newDetail = paymentDetailRepository.create({
-                amount: amountUsed,
-                purchase,
-                payment,
-            });
-            payment.details = payment.details ? [...payment.details, newDetail] : [newDetail];
-            //Actualizo el monto no asignado
-            payment.unassignedAmount -= amountUsed;
-            //Guardo los cambios
-            await paymentRepository.save(payment);
 
-            //Actualizo el estado de la compra
-            await this.purchaseService.updatePurchaseState(purchase, manager);
-            //Actualizo el monto restante por pagar
-            remainingAmount -= amountUsed;
+        // Tomamos todas las compras impagas del proveedor (incluida la nueva si aplica),
+        // y priorizamos la compra recibida por parámetro.
+        const unpaidPurchases = await this.purchaseService.findUnpaidPurchasesBySupplier(supplierId, manager);
+
+        // Reordenamos para que la compra actual vaya primero si está en la lista
+        const purchasesQueue: Purchase[] = [];
+        const seen = new Set<number>();
+
+        purchasesQueue.push(purchase);
+        seen.add(purchase.id);
+
+        // Agregamos luego las demás compras impagas del proveedor, evitando duplicados
+        for (const p of unpaidPurchases) {
+            if (!seen.has(p.id)) {
+                purchasesQueue.push(p);
+                seen.add(p.id);
+            }
+        }
+
+        // Recorremos pagos con saldo a favor y los vamos aplicando a las compras impagas
+        for (const payment of paymentsWithUnassignedAmount) {
+            const initialUnassigned = payment.unassignedAmount;
+            let paymentRemaining = payment.unassignedAmount;
+            if (paymentRemaining <= 0) continue;
+
+            // Cache local de compras ya cargadas en esta iteración
+            const loadedPurchases = new Map<number, Purchase>();
+
+            for (const p of purchasesQueue) {
+                if (paymentRemaining <= 0) break;
+
+                let freshPurchase = loadedPurchases.get(p.id);
+                if (!freshPurchase) {
+                    // Versión ligera de la compra, sólo con lo necesario para calcular totales y estado
+                    freshPurchase = await this.purchaseService.findForStateUpdate(p.id, manager);
+                    loadedPurchases.set(p.id, freshPurchase);
+                }
+
+                const totalPurchaseAmount = this.purchaseService.getTotalPurchaseAmount(freshPurchase);
+                const alreadyPaid = this.purchaseService.getTotalPaidAmountForPurchase(freshPurchase);
+                const remainingForPurchase = totalPurchaseAmount - alreadyPaid;
+
+                if (remainingForPurchase <= 0) {
+                    continue;
+                }
+
+                const amountUsed = Math.min(paymentRemaining, remainingForPurchase);
+                if (amountUsed <= 0) continue;
+
+                const newDetail = paymentDetailRepository.create({
+                    amount: amountUsed,
+                    purchase: freshPurchase,
+                    payment,
+                });
+                await paymentDetailRepository.save(newDetail);
+
+                paymentRemaining -= amountUsed;
+                payment.unassignedAmount -= amountUsed;
+
+                // Actualizamos la colección en memoria para reutilizarla al recalcular state
+                freshPurchase.paymentDetails = [
+                    ...(freshPurchase.paymentDetails ?? []),
+                    newDetail,
+                ];
+
+                // Actualizamos el estado de la compra usando la instancia ya cargada
+                await this.purchaseService.updatePurchaseStateFromLoaded(freshPurchase, manager);
+            }
+
+            // Sólo persistimos el pago si efectivamente se consumió parte del unassignedAmount
+            if (payment.unassignedAmount !== initialUnassigned) {
+                await paymentRepository.save(payment);
+            }
         }
     }
 
     async updatePaidPurchasesStates(payment: Payment, manager?: EntityManager): Promise<void> {
+        const processed = new Set<number>();
+        const updates: Promise<unknown>[] = [];
         for (const detail of payment.details) {
-            await this.purchaseService.updatePurchaseState(detail.purchase, manager);
+            const purchaseId = detail.purchase?.id;
+            if (!purchaseId || processed.has(purchaseId)) {
+                continue;
+            }
+
+            processed.add(purchaseId);
+            updates.push(this.purchaseService.updatePurchaseState(purchaseId, manager));
         }
+        await Promise.all(updates);
     }
     async delete(id: number): Promise<{ message: string }> {
         return this.repository.manager.transaction(async (manager) => {
