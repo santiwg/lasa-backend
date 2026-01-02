@@ -5,6 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import * as request from 'supertest';
 
+import {
+	bakery_module_entities,
+	products_module_entities,
+	purchases_module_entities,
+	sales_module_entities,
+	shared_module_entities,
+} from '../../entities';
+
 import { Unit } from '../../shared/unit/unit.entity';
 import { UnitService } from '../../shared/unit/unit.service';
 
@@ -12,11 +20,7 @@ import { Ingredient } from '../ingredient/ingredient.entity';
 import { IngredientService } from '../ingredient/ingredient.service';
 
 import { Product, ComplexityFactor } from '../product/product.entity';
-import { RecipeItem } from '../product/recipe-item.entity';
 import { ProductService } from '../product/product.service';
-
-import { ProductionInstance } from './production-instance.entity';
-import { ProductionInstanceDetail } from './production-instance-detail.entity';
 import { ProductionInstanceController } from './production-instance.controller';
 import { ProductionInstanceService } from './production-instance.service';
 
@@ -35,12 +39,11 @@ describe('Production Instances flow (integration)', () => {
 	let productRepository: Repository<Product>;
 
 	const entities = [
-		Unit,
-		Ingredient,
-		Product,
-		RecipeItem,
-		ProductionInstance,
-		ProductionInstanceDetail,
+		...bakery_module_entities,
+		...products_module_entities,
+		...purchases_module_entities,
+		...sales_module_entities,
+		...shared_module_entities,
 	];
 
 	const mockCifService: Pick<CifService, 'getUnitaryCif'> = {
@@ -96,7 +99,9 @@ describe('Production Instances flow (integration)', () => {
 	});
 
 	afterAll(async () => {
-		await app.close();
+		if (app) {
+			await app.close();
+		}
 	});
 
 	beforeEach(async () => {

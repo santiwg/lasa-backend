@@ -1,7 +1,8 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, DeleteDateColumn } from "typeorm";
 import { ProductionInstance } from "./production-instance.entity";
 import { Product } from "../product/product.entity";
 import { DecimalTransformer } from "../../utilities/transformers/decimal.transformer";
+import { Exclude } from "class-transformer";
 
 @Entity('production-instance-details')
 export class ProductionInstanceDetail extends BaseEntity {
@@ -21,4 +22,8 @@ export class ProductionInstanceDetail extends BaseEntity {
 
     @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
     unitCost: number; //cost at the time of production
+
+    @Exclude()
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

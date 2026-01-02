@@ -152,20 +152,29 @@ export class ProductionInstanceService {
             // Cada detalle representa “se produjeron N unidades del producto X”.
             const product = detail.product;
             if (!product) {
-                // Si por algún motivo el detalle viene sin producto cargado, lo ignoramos.
-                continue;
+                // Sin producto no se puede calcular ni revertir stock de forma segura.
+                throw new BadRequestException('ProductionInstanceDetail is missing its product relation');
             }
 
-            if (!product.unitsPerRecipe || product.unitsPerRecipe <= 0) {
+            const unitsPerRecipe = Number(product.unitsPerRecipe);
+            if (!Number.isFinite(unitsPerRecipe) || unitsPerRecipe <= 0) {
                 // Necesitamos unitsPerRecipe para traducir “unidades producidas” a “veces de receta”.
                 throw new BadRequestException(`Product with ID ${product.id} has an invalid unitsPerRecipe`);
             }
 
+            const producedQuantity = Number(detail.quantity);
+            if (!Number.isFinite(producedQuantity) || producedQuantity <= 0) {
+                throw new BadRequestException(`Invalid production quantity for product with ID ${product.id}`);
+            }
+
             // Acumulamos cuántas unidades finales del producto se producen (puede repetirse el producto en varios detalles).
-            producedByProductId.set(product.id, (producedByProductId.get(product.id) ?? 0) + detail.quantity);
+            producedByProductId.set(
+                product.id,
+                (producedByProductId.get(product.id) ?? 0) + producedQuantity,
+            );
 
             // Convertimos unidades producidas a “multiplicador de receta” (p.ej. si unitsPerRecipe=10 y quantity=20 => 2 recetas).
-            const recipesMultiplier = detail.quantity / product.unitsPerRecipe;
+            const recipesMultiplier = producedQuantity / unitsPerRecipe;
             for (const item of product.recipeItems ?? []) {
                 // Cada recipeItem indica cuánto ingrediente se consume por 1 receta.
                 const ingredientId = item.ingredient?.id;
@@ -173,8 +182,12 @@ export class ProductionInstanceService {
                     // Si el item no tiene ingrediente asociado, no hay nada que descontar.
                     continue;
                 }
+                const perRecipeQuantity = Number(item.quantity);
+                if (!Number.isFinite(perRecipeQuantity) || perRecipeQuantity < 0) {
+                    throw new BadRequestException(`Invalid recipe item quantity for product with ID ${product.id}`);
+                }
                 // Consumo total del ingrediente = consumo por receta * multiplicador de receta.
-                const consumed = item.quantity * recipesMultiplier;
+                const consumed = perRecipeQuantity * recipesMultiplier;
                 // Acumulamos el consumo por ingrediente (puede aparecer en distintas recetas/productos).
                 consumedByIngredientId.set(ingredientId, (consumedByIngredientId.get(ingredientId) ?? 0) + consumed);
             }
@@ -220,11 +233,25 @@ export class ProductionInstanceService {
         await this.repository.manager.transaction(async manager => {
             const instanceRepo = manager.getRepository(ProductionInstance);
 
+            const detailRepo = manager.getRepository(ProductionInstanceDetail);
+
             const instance = await this.findByIdWithRelations(id, manager);
+
+            // Load details explicitly with the relations needed for stock calculations.
+            // This avoids relying on nested eager loading when running inside transactions/tests.
+            const details = await detailRepo.find({
+                where: { productionInstance: { id } },
+                relations: [
+                    'product',
+                    'product.unit',
+                    'product.recipeItems',
+                    'product.recipeItems.ingredient',
+                ],
+            });
 
 
             // Revert the stock effects of production.
-            await this.updateStocksFromDetails(instance.details ?? [], manager, -1);
+            await this.updateStocksFromDetails(details, manager, -1);
 
             await instanceRepo.softRemove(instance);
         });
