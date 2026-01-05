@@ -39,7 +39,7 @@ export class EmployeeService {
         const employees = await this.repository.find({ where: { role: { id: roleId }, isActive: true } });
         
         if (employees.length === 0) {
-            throw new NotFoundException(`No employees found for role ID ${roleId}`);
+            return 0; //Se devuelve 0 si no hay empleados activos en ese rol, para evitar división por cero o lanzar una excepcion
         }
         
         const totalWage = employees.reduce((sum, employee) => sum + employee.hourlyWage, 0);

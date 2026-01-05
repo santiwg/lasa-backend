@@ -21,7 +21,7 @@ export class Product extends BaseEntity {
     @Column({unique:true})
     name: string;
 
-    @ManyToOne(() => Unit,{eager: true})
+    @ManyToOne(() => Unit)
     unit: Unit;
 
     @Column({ type: 'decimal', precision: 10, scale: 2, transformer: DecimalTransformer })
@@ -45,7 +45,7 @@ export class Product extends BaseEntity {
     @OneToMany(() => StockMovement, stockMovement => stockMovement.product)
     stockMovements: StockMovement[];
 
-    @OneToMany(() => RecipeItem, recipeItem => recipeItem.product, { cascade: true, eager: true })
+    @OneToMany(() => RecipeItem, recipeItem => recipeItem.product, { cascade: true })
     recipeItems: RecipeItem[];
 
     @OneToMany(() => SaleDetail, saleDetail => saleDetail.product)

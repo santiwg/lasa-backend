@@ -27,6 +27,15 @@ export class ProductService {
         private readonly employeeService: EmployeeService,
         private readonly paginationService: PaginationService) { }
 
+    private getRelations() {
+        return {
+            unit: true,
+            recipeItems: {
+                ingredient: true,
+            },
+        } as const;
+    }
+
     // función para calcular el subtotal de un recipe item
     private calculateRecipeItemSubtotal(item: RecipeItem | Partial<RecipeItem>): number {
         if (!item.ingredient || typeof item.quantity !== 'number') {
@@ -90,7 +99,9 @@ export class ProductService {
 
     async findById(id: number): Promise<Product> {
         const product = await this.repository.findOne({
-            where: { id }
+            where: { id },
+            relations: this.getRelations(),
+            relationLoadStrategy: 'join',
         });
 
         if (!product) {
@@ -117,8 +128,10 @@ export class ProductService {
         await repo.increment({ id }, 'currentStock', quantityChange);
     }
     async findAll(): Promise<Product[]> {
-        return await this.repository.find();
-        // No necesitamos relations porque todo es eager: true
+        return await this.repository.find({
+            relations: this.getRelations(),
+            relationLoadStrategy: 'join',
+        });
     }
 
     async findAllWithCosts(): Promise<ProductWithCosts[]> {
@@ -134,7 +147,9 @@ export class ProductService {
     }
     async findAllWithCostsPaginated(pagination: PaginationDto): Promise<PaginatedResponseDto<ProductWithCosts>> {
         const options = this.paginationService.getPaginationOptions(pagination, {
-            order: { name: 'ASC' } // Ordena por nombre de forma ascendente (A-Z)
+            order: { name: 'ASC' }, // Ordena por nombre de forma ascendente (A-Z)
+            relations: this.getRelations(),
+            relationLoadStrategy: 'join',
         });
 
         const [data, total] = await this.repository.findAndCount(options);
@@ -166,7 +181,9 @@ export class ProductService {
     async update(id: number, product: NewProductDto): Promise<Product> {
         // 1. Cargar producto existente
         const existingProduct = await this.repository.findOne({
-            where: { id }
+            where: { id },
+            relations: this.getRelations(),
+            relationLoadStrategy: 'join',
         });
 
         if (!existingProduct) {

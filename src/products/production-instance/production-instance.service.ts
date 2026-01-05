@@ -23,14 +23,19 @@ export class ProductionInstanceService {
         private readonly paginationService: PaginationService,
     ) { }
 
-    private getRelations(): string[] {
-        return [
-            'details',
-            'details.product',
-            'details.product.unit',
-            'details.product.recipeItems',
-            'details.product.recipeItems.ingredient',
-        ];
+    private getRelations() {
+        // Using the object form is more reliable for deep/nested relations in TypeORM 0.3.x
+        // (especially combined with findAndCount + pagination).
+        return {
+            details: {
+                product: {
+                    unit: true,
+                    recipeItems: {
+                        ingredient: true,
+                    },
+                },
+            },
+        } as const;
     }
 
     private getOrder() {
@@ -47,6 +52,7 @@ export class ProductionInstanceService {
             where: { id },
             relations: this.getRelations(),
             order: this.getOrder(),
+            relationLoadStrategy: 'join',
         });
 
         if (!instance) {
@@ -63,6 +69,7 @@ export class ProductionInstanceService {
         const options = this.paginationService.getPaginationOptions(pagination, {
             relations: this.getRelations(),
             order: this.getOrder(),
+            relationLoadStrategy: 'join',
         });
 
         switch (filterType) {
@@ -106,7 +113,7 @@ export class ProductionInstanceService {
                 break;
             }
             default:
-                throw new BadRequestException('Invalid sort parameter');
+                throw new BadRequestException('Invalid filter parameter');
         }
 
         const [data, total] = await this.repository.findAndCount(options);

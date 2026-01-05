@@ -10,7 +10,7 @@ export class RecipeItem extends BaseEntity {
     @ManyToOne(() => Product, product => product.recipeItems)
     product: Product;
 
-    @ManyToOne(() => Ingredient, ingredient => ingredient.recipeItems, { eager: true })
+    @ManyToOne(() => Ingredient, ingredient => ingredient.recipeItems)
     ingredient: Ingredient;
 
     @Column({ 
