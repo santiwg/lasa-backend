@@ -4,21 +4,16 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GlobalExceptionFilter } from './utilities/filters/global-exception.filter';
+import { createAppLogger } from './logger/app-logger';
 
 async function bootstrap() {
   // Load environment variables from .env
   dotenv.config();
-  // Enable NestJS internal logger levels.
-  // This controls what gets printed to stdout/stderr (useful when running in Docker/systemd/PM2 on a VPS).
-  // Levels:
-  // - 'error': errores/excepciones (normalmente con stacktrace)
-  // - 'warn': advertencias (situaciones inesperadas pero no fatales)
-  // - 'log': logs informativos generales (arranque, eventos importantes)
-  // - 'debug': detalles para depuración (normalmente sólo en dev)
-  // - 'verbose': aún más detalle (trazas muy “chatter”, diagnóstico fino)
-  const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
-  });
+
+  // Custom logger:
+  // - Console: keeps logs visible in the terminal (stdout/stderr)
+  // - File (daily): writes ONLY error logs to ./logs/error-YYYY-MM-DD.log
+  const app = await NestFactory.create(AppModule, { logger: createAppLogger() });
   
   // Global Exception Filter - maneja todos los errores de forma consistente
   app.useGlobalFilters(new GlobalExceptionFilter());
