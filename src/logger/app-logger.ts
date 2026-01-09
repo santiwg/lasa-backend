@@ -3,7 +3,9 @@ import * as path from 'node:path';
 
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
+// winston-daily-rotate-file is published as CommonJS. In a CommonJS Nest setup,
+// using a default import may produce { default: ... } and break `new ...()`.
+import DailyRotateFile = require('winston-daily-rotate-file');
 
 function ensureLogsDir(): string {
   // We write logs to <projectRoot>/logs by default.
