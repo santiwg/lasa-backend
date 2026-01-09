@@ -17,8 +17,7 @@ import { DevSeederModule } from './dev-seeder/dev-seeder.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      //según la existencia y valor de la variable de entorno usamos un archivo u otro
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+      // Always load environment variables from a single .env file, we don't specify envFilePaths
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({

@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -7,9 +6,6 @@ import { GlobalExceptionFilter } from './utilities/filters/global-exception.filt
 import { createAppLogger } from './logger/app-logger';
 
 async function bootstrap() {
-  // Load environment variables from .env
-  dotenv.config();
-
   // Custom logger:
   // - Console: keeps logs visible in the terminal (stdout/stderr)
   // - File (daily): writes ONLY error logs to ./logs/error-YYYY-MM-DD.log
